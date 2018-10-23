@@ -10,10 +10,10 @@ jobs:
     - stage: deps
       script:
        - cd openvidu-browser
-       - npm i
+       - yarn install
     - stage: build
       script:
         - cd openvidu-browser
-        - npm i
-        - npm run build
+        - yarn install
+        - yarn build
 
