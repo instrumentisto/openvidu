@@ -15,15 +15,13 @@ jobs:
        - cd openvidu-browser
        - yarn install
     - stage: build
-      name: "Build"
       script:
         - cd openvidu-browser
         - yarn install
         - yarn build
-      - script:
-        - cd openvidu-browser
-        - yarn browserify
-      name: "Browserify"
+    - script:
+      - cd openvidu-browser
+      - yarn browserify
     - stage: test
       script:
         - cd openvidu-browser
