@@ -8,9 +8,12 @@ stages:
 jobs:
   include:
     - stage: deps
-      script: npm i
+      script:
+       - cd openvidu-browser
+       - npm i
     - stage: build
       script:
+        - cd openvidu-browser
         - npm i
         - npm run build
 
