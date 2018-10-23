@@ -2,6 +2,10 @@ language: node_js
 node_js:
   - "node"
 
+cache:
+  directories:
+    - openvidu-browser/node_modules/
+
 stages:
   - deps
   - build
@@ -17,7 +21,6 @@ jobs:
     - stage: build
       script:
         - cd openvidu-browser
-        - yarn install
         - yarn build
     - script:
       - cd openvidu-browser
