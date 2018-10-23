@@ -6,6 +6,7 @@ stages:
   - deps
   - build
   - test
+  - docs
 
 jobs:
   include:
@@ -18,4 +19,15 @@ jobs:
         - cd openvidu-browser
         - yarn install
         - yarn build
-
+      - name: "Browserify"
+      script:
+        - cd openvidu-browser
+        - yarn browserify
+    - stage: test
+      script:
+        - cd openvidu-browser
+        - yarn test
+    - stage: docs
+      script:
+        - cd openvidu-browser
+        - yarn docs
