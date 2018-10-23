@@ -19,10 +19,10 @@ jobs:
         - cd openvidu-browser
         - yarn install
         - yarn build
-      - name: "Browserify"
-      script:
+      - script:
         - cd openvidu-browser
         - yarn browserify
+      name: "Browserify"
     - stage: test
       script:
         - cd openvidu-browser
