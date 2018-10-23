@@ -14,7 +14,8 @@ jobs:
       script:
        - cd openvidu-browser
        - yarn install
-    - stage: "build"
+    - stage: build
+      name: "Build"
       script:
         - cd openvidu-browser
         - yarn install
