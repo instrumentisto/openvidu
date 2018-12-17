@@ -17,6 +17,8 @@
 
 import { Stream } from './Stream';
 import { LocalRecorderState } from '../OpenViduInternal/Enums/LocalRecorderState';
+import platform = require('platform');
+
 
 /**
  * @hidden
@@ -27,7 +29,9 @@ declare var MediaRecorder: any;
 /**
  * Easy recording of [[Stream]] objects straightaway from the browser. Initialized with [[OpenVidu.initLocalRecorder]] method
  *
- * > WARNING: Performing browser local recording of **remote streams** may cause some troubles. A long waiting time may be required after calling _LocalRecorder.stop()_ in this case
+ * > WARNINGS:
+ * - Performing browser local recording of **remote streams** may cause some troubles. A long waiting time may be required after calling _LocalRecorder.stop()_ in this case
+ * - Only Chrome and Firefox support local stream recording
  */
 export class LocalRecorder {
 
@@ -37,10 +41,8 @@ export class LocalRecorder {
     private mediaRecorder: any;
     private chunks: any[] = [];
     private blob: Blob;
-    private count = 0;
     private id: string;
     private videoPreviewSrc: string;
-    private htmlParentElementId: string;
     private videoPreview: HTMLVideoElement;
 
     /**
@@ -202,15 +204,16 @@ export class LocalRecorder {
         this.videoPreview.id = this.id;
         this.videoPreview.autoplay = true;
 
-        if (typeof parentElement === 'string') {
-            this.htmlParentElementId = parentElement;
+        if (platform.name === 'Safari') {
+            this.videoPreview.setAttribute('playsinline', 'true');
+        }
 
+        if (typeof parentElement === 'string') {
             const parentElementDom = document.getElementById(parentElement);
             if (parentElementDom) {
                 this.videoPreview = parentElementDom.appendChild(this.videoPreview);
             }
         } else {
-            this.htmlParentElementId = parentElement.id;
             this.videoPreview = parentElement.appendChild(this.videoPreview);
         }
 
@@ -227,7 +230,6 @@ export class LocalRecorder {
         const f = () => {
             delete this.blob;
             this.chunks = [];
-            this.count = 0;
             delete this.mediaRecorder;
             this.state = LocalRecorderState.READY;
         };

@@ -22,3 +22,6 @@ nbactions.xml
 */.classpath
 */.settings/*
 */.tscache/*
+/.idea/
+/*.iml
+.DS_Store

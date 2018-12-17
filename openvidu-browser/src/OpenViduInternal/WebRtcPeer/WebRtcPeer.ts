@@ -18,7 +18,7 @@
 import freeice = require('freeice');
 import uuid = require('uuid');
 import platform = require('platform');
-
+platform['isIonicIos'] = (platform.product === 'iPhone' || platform.product === 'iPad') && platform.ua!!.indexOf('Safari') === -1;
 
 export interface WebRtcPeerConfiguration {
     mediaConstraints: {
@@ -29,7 +29,7 @@ export interface WebRtcPeerConfiguration {
     onicecandidate: (event) => void;
     iceServers: RTCIceServer[] | undefined;
     mediaStream?: MediaStream;
-    mode?: string; // sendonly, reconly, sendrecv
+    mode?: 'sendonly' | 'recvonly' | 'sendrecv';
     id?: string;
 }
 
@@ -87,8 +87,14 @@ export class WebRtcPeer {
                 reject('The peer connection object is in "closed" state. This is most likely due to an invocation of the dispose method before accepting in the dialogue');
             }
             if (!!this.configuration.mediaStream) {
-                for (const track of this.configuration.mediaStream.getTracks()) {
-                    this.pc.addTrack(track, this.configuration.mediaStream);
+                if (platform['isIonicIos']) {
+                    // iOS Ionic. LIMITATION: must use deprecated WebRTC API
+                    const pc2: any = this.pc;
+                    pc2.addStream(this.configuration.mediaStream);
+                } else {
+                    for (const track of this.configuration.mediaStream.getTracks()) {
+                        this.pc.addTrack(track, this.configuration.mediaStream);
+                    }
                 }
                 resolve();
             }
@@ -108,19 +114,37 @@ export class WebRtcPeer {
                 this.remoteCandidatesQueue = [];
                 this.localCandidatesQueue = [];
 
-                // Stop senders
-                for (const sender of this.pc.getSenders()) {
-                    if (!videoSourceIsMediaStreamTrack) {
-                        if (!!sender.track) {
-                            sender.track.stop();
+                if (platform['isIonicIos']) {
+                    // iOS Ionic. LIMITATION: must use deprecated WebRTC API
+                    // Stop senders deprecated
+                    const pc1: any = this.pc;
+                    for (const sender of pc1.getLocalStreams()) {
+                        if (!videoSourceIsMediaStreamTrack) {
+                            (<MediaStream>sender).stop();
+                        }
+                        pc1.removeStream(sender);
+                    }
+                    // Stop receivers deprecated
+                    for (const receiver of pc1.getRemoteStreams()) {
+                        if (!!receiver.track) {
+                            (<MediaStream>receiver).stop();
                         }
                     }
-                    this.pc.removeTrack(sender);
-                }
-                // Stop receivers
-                for (const receiver of this.pc.getReceivers()) {
-                    if (!!receiver.track) {
-                        receiver.track.stop();
+                } else {
+                    // Stop senders
+                    for (const sender of this.pc.getSenders()) {
+                        if (!videoSourceIsMediaStreamTrack) {
+                            if (!!sender.track) {
+                                sender.track.stop();
+                            }
+                        }
+                        this.pc.removeTrack(sender);
+                    }
+                    // Stop receivers
+                    for (const receiver of this.pc.getReceivers()) {
+                        if (!!receiver.track) {
+                            receiver.track.stop();
+                        }
                     }
                 }
 
@@ -154,18 +178,52 @@ export class WebRtcPeer {
 
             console.debug('RTCPeerConnection constraints: ' + JSON.stringify(constraints));
 
-            this.pc.createOffer(constraints).then(offer => {
-                console.debug('Created SDP offer');
-                return this.pc.setLocalDescription(offer);
-            }).then(() => {
-                const localDescription = this.pc.localDescription;
-                if (!!localDescription) {
-                    console.debug('Local description set', localDescription.sdp);
-                    resolve(<string>localDescription.sdp);
-                } else {
-                    reject('Local description is not defined');
+            if (platform.name === 'Safari' && platform.ua!!.indexOf('Safari') !== -1) {
+                // Safari (excluding Ionic), at least on iOS just seems to support unified plan, whereas in other browsers is not yet ready and considered experimental
+                if (offerAudio) {
+                    this.pc.addTransceiver('audio', {
+                        direction: this.configuration.mode,
+                    });
                 }
-            }).catch(error => reject(error));
+
+                if (offerVideo) {
+                    this.pc.addTransceiver('video', {
+                        direction: this.configuration.mode,
+                    });
+                }
+
+                this.pc
+                    .createOffer()
+                    .then(offer => {
+                        console.debug('Created SDP offer');
+                        return this.pc.setLocalDescription(offer);
+                    })
+                    .then(() => {
+                        const localDescription = this.pc.localDescription;
+
+                        if (!!localDescription) {
+                            console.debug('Local description set', localDescription.sdp);
+                            resolve(localDescription.sdp);
+                        } else {
+                            reject('Local description is not defined');
+                        }
+                    })
+                    .catch(error => reject(error));
+            } else {
+                this.pc.createOffer(constraints).then(offer => {
+                    console.debug('Created SDP offer');
+                    return this.pc.setLocalDescription(offer);
+                }).then(() => {
+                    const localDescription = this.pc.localDescription;
+                    if (!!localDescription) {
+                        console.debug('Local description set', localDescription.sdp);
+                        resolve(localDescription.sdp);
+                    } else {
+                        reject('Local description is not defined');
+                    }
+                })
+                    .catch(error => reject(error));
+            }
         });
     }
 
@@ -208,7 +266,7 @@ export class WebRtcPeer {
      * 3) Function invoked when a SDP answer is received. Final step in SDP negotiation, the peer
      * just needs to set the answer as its remote description
      */
-    processAnswer(sdpAnswer: string): Promise<string> {
+    processAnswer(sdpAnswer: string, needsTimeoutOnProcessAswer: boolean): Promise<string> {
         return new Promise((resolve, reject) => {
 
             const answer: RTCSessionDescriptionInit = {
@@ -221,8 +279,14 @@ export class WebRtcPeer {
             if (this.pc.signalingState === 'closed') {
                 reject('RTCPeerConnection is closed');
             }
-
-            this.pc.setRemoteDescription(answer).then(() => resolve()).catch(error => reject(error));
+            if (needsTimeoutOnProcessAswer && platform['isIonicIos']) {
+                setTimeout(() => {
+                    console.info('setRemoteDescription run after timout for iOS device');
+                    this.pc.setRemoteDescription(answer).then(() => resolve()).catch(error => reject(error));
+                }, 250);
+            } else {
+                this.pc.setRemoteDescription(answer).then(() => resolve()).catch(error => reject(error));
+            }
         });
     }
 

@@ -24,7 +24,8 @@ import { VideoElementEvent } from '../OpenViduInternal/Events/VideoElementEvent'
 import { VideoInsertMode } from '../OpenViduInternal/Enums/VideoInsertMode';
 
 import EventEmitter = require('wolfy87-eventemitter');
-
+import platform = require('platform');
+platform['isIonicIos'] = (platform.product === 'iPhone' || platform.product === 'iPad') && platform.ua!!.indexOf('Safari') === -1;
 
 /**
  * Interface in charge of displaying the media streams in the HTML DOM. This wraps any [[Publisher]] and [[Subscriber]] object.
@@ -112,6 +113,9 @@ export class StreamManager implements EventDispatcher {
                     video: document.createElement('video'),
                     id: ''
                 };
+                if (platform.name === 'Safari') {
+                    this.firstVideoElement.video.setAttribute('playsinline', 'true');
+                }
                 this.targetElement = targEl;
                 this.element = targEl;
             }
@@ -129,7 +133,7 @@ export class StreamManager implements EventDispatcher {
                 console.info("Remote 'Stream' with id [" + this.stream.streamId + '] video is now playing');
                 this.ee.emitEvent('videoPlaying', [new VideoElementEvent(this.videos[0].video, this, 'videoPlaying')]);
             }
-            this.ee.emitEvent('streamPlaying', [new StreamManagerEvent(this)]);
+            this.ee.emitEvent('streamPlaying', [new StreamManagerEvent(this, 'streamPlaying', undefined)]);
         };
     }
 
@@ -157,9 +161,12 @@ export class StreamManager implements EventDispatcher {
                 this.videos[0].video.paused === false &&
                 this.videos[0].video.ended === false &&
                 this.videos[0].video.readyState === 4) {
-                this.ee.emitEvent('streamPlaying', [new StreamManagerEvent(this)]);
+                this.ee.emitEvent('streamPlaying', [new StreamManagerEvent(this, 'streamPlaying', undefined)]);
                 this.ee.emitEvent('videoPlaying', [new VideoElementEvent(this.videos[0].video, this, 'videoPlaying')]);
             }
+        }
+        if (type === 'streamAudioVolumeChange' && this.stream.hasAudio) {
+            this.stream.enableVolumeChangeEvent();
         }
         return this;
     }
@@ -187,9 +194,12 @@ export class StreamManager implements EventDispatcher {
                 this.videos[0].video.paused === false &&
                 this.videos[0].video.ended === false &&
                 this.videos[0].video.readyState === 4) {
-                this.ee.emitEvent('streamPlaying', [new StreamManagerEvent(this)]);
+                this.ee.emitEvent('streamPlaying', [new StreamManagerEvent(this, 'streamPlaying', undefined)]);
                 this.ee.emitEvent('videoPlaying', [new VideoElementEvent(this.videos[0].video, this, 'videoPlaying')]);
             }
+        }
+        if (type === 'streamAudioVolumeChange' && this.stream.hasAudio) {
+            this.stream.enableOnceVolumeChangeEvent();
         }
         return this;
     }
@@ -203,6 +213,11 @@ export class StreamManager implements EventDispatcher {
         } else {
             this.ee.off(type, handler);
         }
+
+        if (type === 'streamAudioVolumeChange') {
+            this.stream.disableVolumeChangeEvent();
+        }
+
         return this;
     }
 
@@ -329,6 +344,11 @@ export class StreamManager implements EventDispatcher {
         }
         video.autoplay = true;
         video.controls = false;
+
+        if (platform.name === 'Safari') {
+            video.setAttribute('playsinline', 'true');
+        }
+
         if (!video.id) {
             video.id = (this.remote ? 'remote-' : 'local-') + 'video-' + this.stream.streamId;
             // DEPRECATED property: assign once the property id if the user provided a valid targetElement
@@ -338,7 +358,10 @@ export class StreamManager implements EventDispatcher {
         }
         if (!this.remote && !this.stream.displayMyRemote()) {
             video.muted = true;
-            if (this.stream.outboundStreamOpts.publisherProperties.mirror) {
+            if (video.style.transform === 'rotateY(180deg)' && !this.stream.outboundStreamOpts.publisherProperties.mirror) {
+                // If the video was already rotated and now is set to not mirror
+                this.removeMirrorVideo(video);
+            } else if (this.stream.outboundStreamOpts.publisherProperties.mirror) {
                 this.mirrorVideo(video);
             }
         }
@@ -401,6 +424,14 @@ export class StreamManager implements EventDispatcher {
     updateMediaStream(mediaStream: MediaStream) {
         this.videos.forEach(streamManagerVideo => {
             streamManagerVideo.video.srcObject = mediaStream;
+            if (platform['isIonicIos']) {
+                // iOS Ionic. LIMITATION: must reinsert the video in the DOM for
+                // the media stream to be updated
+                const vParent = streamManagerVideo.video.parentElement;
+                const newVideo = streamManagerVideo.video;
+                vParent!!.replaceChild(newVideo, streamManagerVideo.video);
+                streamManagerVideo.video = newVideo;
+            }
         });
     }
 
@@ -420,8 +451,15 @@ export class StreamManager implements EventDispatcher {
     }
 
     private mirrorVideo(video): void {
-        video.style.transform = 'rotateY(180deg)';
-        video.style.webkitTransform = 'rotateY(180deg)';
+        if (!platform['isIonicIos']) {
+            video.style.transform = 'rotateY(180deg)';
+            video.style.webkitTransform = 'rotateY(180deg)';
+        }
+    }
+
+    private removeMirrorVideo(video): void {
+        video.style.transform = 'unset';
+        video.style.webkitTransform = 'unset';
     }
 
 }

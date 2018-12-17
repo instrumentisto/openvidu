@@ -40,9 +40,8 @@ import { StreamPropertyChangedEvent } from '../OpenViduInternal/Events/StreamPro
 import { OpenViduError, OpenViduErrorName } from '../OpenViduInternal/Enums/OpenViduError';
 import { VideoInsertMode } from '../OpenViduInternal/Enums/VideoInsertMode';
 
-import platform = require('platform');
 import EventEmitter = require('wolfy87-eventemitter');
-
+import platform = require('platform');
 
 /**
  * Represents a video call. It can also be seen as a videoconference room where multiple users can connect.
@@ -81,6 +80,15 @@ export class Session implements EventDispatcher {
     /**
      * @hidden
      */
+    isFirstIonicIosSubscriber = true;
+    /**
+     * @hidden
+     */
+    countDownForIonicIosSubscribers = true;
+
+    /**
+     * @hidden
+     */
     remoteConnections: ObjMap<Connection> = {};
     /**
      * @hidden
@@ -110,7 +118,7 @@ export class Session implements EventDispatcher {
     /**
      * Connects to the session using `token`. Parameter `metadata` allows you to pass extra data to share with other users when
      * they receive `streamCreated` event. The structure of `metadata` string is up to you (maybe some standardized format
-     * as JSON or XML is a good idea), the only restriction is a maximum length of 10000 chars.
+     * as JSON or XML is a good idea).
      *
      * This metadata is not considered secure, as it is generated in the client side. To pass secure data, add it as a parameter in the
      * token generation operation (through the API REST, openvidu-java-client or openvidu-node-client).
@@ -152,7 +160,7 @@ export class Session implements EventDispatcher {
                     reject(error);
                 });
             } else {
-                reject(new OpenViduError(OpenViduErrorName.BROWSER_NOT_SUPPORTED, 'Browser ' + platform.name + ' ' + platform.version + ' is not supported in OpenVidu'));
+                reject(new OpenViduError(OpenViduErrorName.BROWSER_NOT_SUPPORTED, 'Browser ' + platform.name + ' for ' + platform.os!!.family + ' is not supported in OpenVidu'));
             }
         });
     }
@@ -559,7 +567,7 @@ export class Session implements EventDispatcher {
             // If there are already available remote streams, enable hark 'speaking' event in all of them
             for (const connectionId in this.remoteConnections) {
                 const str = this.remoteConnections[connectionId].stream;
-                if (!!str && !str.speechEvent && str.hasAudio) {
+                if (!!str && str.hasAudio) {
                     str.enableSpeakingEvents();
                 }
             }
@@ -588,7 +596,7 @@ export class Session implements EventDispatcher {
             // If there are already available remote streams, enable hark in all of them
             for (const connectionId in this.remoteConnections) {
                 const str = this.remoteConnections[connectionId].stream;
-                if (!!str && !str.speechEvent && str.hasAudio) {
+                if (!!str && str.hasAudio) {
                     str.enableOnceSpeakingEvents();
                 }
             }
@@ -615,7 +623,7 @@ export class Session implements EventDispatcher {
             // If there are already available remote streams, disable hark in all of them
             for (const connectionId in this.remoteConnections) {
                 const str = this.remoteConnections[connectionId].stream;
-                if (!!str && !!str.speechEvent) {
+                if (!!str) {
                     str.disableSpeakingEvents();
                 }
             }
@@ -659,6 +667,10 @@ export class Session implements EventDispatcher {
                     streamEvent.callDefaultBehavior();
 
                     delete this.remoteStreamsCreated[stream.streamId];
+                    if (Object.keys(this.remoteStreamsCreated).length === 0) {
+                        this.isFirstIonicIosSubscriber = true;
+                        this.countDownForIonicIosSubscribers = true;
+                    }
                 }
                 delete this.remoteConnections[connection.connectionId];
                 this.ee.emitEvent('connectionDestroyed', [new ConnectionEvent(false, this, 'connectionDestroyed', connection, msg.reason)]);
@@ -728,6 +740,10 @@ export class Session implements EventDispatcher {
                     // Deleting the remote stream
                     const streamId: string = connection.stream.streamId;
                     delete this.remoteStreamsCreated[streamId];
+                    if (Object.keys(this.remoteStreamsCreated).length === 0) {
+                        this.isFirstIonicIosSubscriber = true;
+                        this.countDownForIonicIosSubscribers = true;
+                    }
                     connection.removeStream(streamId);
                 })
                 .catch(openViduError => {

@@ -6,7 +6,7 @@ import {
 import {
   OpenVidu, Session, Subscriber, Publisher, VideoInsertMode, StreamEvent, ConnectionEvent,
   SessionDisconnectedEvent, SignalEvent, RecordingEvent,
-  PublisherSpeakingEvent, PublisherProperties, StreamPropertyChangedEvent, OpenViduError, FilterEvent
+  PublisherSpeakingEvent, PublisherProperties, StreamPropertyChangedEvent, OpenViduError
 } from 'openvidu-browser';
 import {
   OpenVidu as OpenViduAPI,
@@ -229,6 +229,7 @@ export class OpenviduInstanceComponent implements OnInit, OnChanges, OnDestroy {
       })
       .catch(error => {
         console.log('There was an error connecting to the session:', error.code, error.message);
+        alert('Error connecting to the session: ' + error.message);
       });
   }
 
