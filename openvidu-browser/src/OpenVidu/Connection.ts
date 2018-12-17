@@ -32,6 +32,10 @@ export class Connection {
      * Unique identifier of the connection
      */
     connectionId: string;
+  /**
+   * RPC session ID.
+   */
+    rpcSessionId: string;
 
     /**
      * Time when this connection was created (UTC milliseconds)
