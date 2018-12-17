@@ -23,5 +23,5 @@ nbactions.xml
 */.settings/*
 */.tscache/*
 /.idea/
-/*.iml
+*.iml
 .DS_Store
