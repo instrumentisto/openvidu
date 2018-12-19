@@ -692,9 +692,7 @@ export class OpenVidu {
 
   private reconnectingCallback(): void {
     console.warn('Websocket connection lost (reconnecting)');
-    if (this.isRoomAvailable()) {
-      this.session.onLostConnection('Websocket connection lost (reconnecting)');
-    } else {
+    if (!this.isRoomAvailable()) {
       alert('Connection error. Please reload page.');
     }
   }

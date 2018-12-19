@@ -32,6 +32,7 @@ export class Connection {
      * Unique identifier of the connection
      */
     connectionId: string;
+
   /**
    * RPC session ID.
    */
@@ -168,5 +169,4 @@ export class Connection {
         }
         this.disposed = true;
     }
-
 }
