@@ -62,7 +62,7 @@ var OpenVidu = /** @class */ (function () {
                         var getNewVideoDimensions_1 = function () {
                             return new Promise(function (resolve, reject) {
                                 if (platform['isIonicIos']) {
-                                    // iOS Ionic. Limitation: must get new dimensions from an existing video element already inserted into DOM 
+                                    // iOS Ionic. Limitation: must get new dimensions from an existing video element already inserted into DOM
                                     resolve({
                                         newWidth: publisher.stream.streamManager.videos[0].video.videoWidth,
                                         newHeight: publisher.stream.streamManager.videos[0].video.videoHeight
@@ -554,7 +554,7 @@ var OpenVidu = /** @class */ (function () {
      * @hidden
      */
     OpenVidu.prototype.closeWs = function () {
-        this.jsonRpcClient.close(4102, "Connection close by client");
+        this.jsonRpcClient.close(4102, "Connection closed by client");
     };
     /**
      * @hidden
