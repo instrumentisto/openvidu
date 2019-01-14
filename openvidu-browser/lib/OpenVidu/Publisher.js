@@ -418,6 +418,13 @@ var Publisher = /** @class */ (function (_super) {
                     navigator.mediaDevices.getUserMedia(constraintsAux)
                         .then(function (mediaStream) {
                         _this.clearPermissionDialogTimer(startTime_1, timeForDialogEvent);
+                        var errorName, errorMessage;
+                        if (mediaStream.getTracks().some(function (track) { return track.readyState != 'live'; })) {
+                            errorName = OpenViduError_1.OpenViduErrorName.HARDWARE_ERROR;
+                            errorMessage = "Hardware error occurred at the operating system, browser, or web page level which prevented access to the device";
+                            errorCallback(new OpenViduError_1.OpenViduError(errorName, errorMessage));
+                            return;
+                        }
                         if (_this.stream.isSendScreen() && _this.stream.isSendAudio()) {
                             // When getting desktop as user media audio constraint must be false. Now we can ask for it if required
                             constraintsAux.audio = definedAudioConstraint_1;
@@ -435,7 +442,6 @@ var Publisher = /** @class */ (function (_super) {
                                     // Safari OverConstrainedError has as name property 'Error' instead of 'OverConstrainedError'
                                     error.name = error.constructor.name;
                                 }
-                                var errorName, errorMessage;
                                 switch (error.name.toLowerCase()) {
                                     case 'notfounderror':
                                         errorName = OpenViduError_1.OpenViduErrorName.INPUT_AUDIO_DEVICE_NOT_FOUND;
