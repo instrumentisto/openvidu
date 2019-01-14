@@ -30,10 +30,10 @@
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
-    "name": "openvidu-browser",
+    "name": "instrumentisto-browser",
     "repository": {
         "type": "git",
-        "url": "git://github.com/OpenVidu/openvidu"
+        "url": "git://github.com/instrumentisto/openvidu"
     },
     "scripts": {
         "browserify": "VERSION=${VERSION:-}; cd src && browserify Main.ts -p [ tsify ] --exclude kurento-browser-extensions --debug -o ../static/js/openvidu-browser-$VERSION.js -v",
