@@ -1,5 +1,5 @@
 {
-    "author": "OpenVidu",
+    "author": "Instrumentisto",
     "dependencies": {
         "@types/node": "10.12.12",
         "@types/platform": "1.3.1",
@@ -10,7 +10,8 @@
         "webrtc-adapter": "7.1.1",
         "wolfy87-eventemitter": "5.2.5"
     },
-    "description": "OpenVidu Browser",
+    "description": "OpenVidu Browser fork",
+    "keywords": ["webrtc", "openvidu", "kurento", "browser"],
     "devDependencies": {
         "browserify": "16.2.3",
         "grunt": "1.0.3",
@@ -30,10 +31,10 @@
     },
     "license": "Apache-2.0",
     "main": "lib/index.js",
-    "name": "openvidu-browser",
+    "name": "instrumentisto-browser",
     "repository": {
         "type": "git",
-        "url": "git://github.com/OpenVidu/openvidu"
+        "url": "git://github.com/instrumentisto/openvidu"
     },
     "scripts": {
         "browserify": "VERSION=${VERSION:-}; cd src && browserify Main.ts -p [ tsify ] --exclude kurento-browser-extensions --debug -o ../static/js/openvidu-browser-$VERSION.js -v",
@@ -43,5 +44,5 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "types": "lib/index.d.ts",
-    "version": "2.7.0-r1"
+    "version": "2.7.0-r2"
 }
