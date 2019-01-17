@@ -465,6 +465,14 @@ export class Publisher extends StreamManager {
                             .then(mediaStream => {
                                 this.clearPermissionDialogTimer(startTime, timeForDialogEvent);
 
+                                let errorName, errorMessage;
+                                if (mediaStream.getTracks().some(track => track.readyState != 'live')) {
+                                    errorName = OpenViduErrorName.HARDWARE_ERROR
+                                    errorMessage = "Hardware error occurred at the operating system, browser, or web page level which prevented access to the device";
+                                    errorCallback(new OpenViduError(errorName, errorMessage));
+                                    return;
+                                }
+
                                 if (this.stream.isSendScreen() && this.stream.isSendAudio()) {
                                     // When getting desktop as user media audio constraint must be false. Now we can ask for it if required
                                     constraintsAux.audio = definedAudioConstraint;
@@ -484,7 +492,6 @@ export class Publisher extends StreamManager {
                                                 // Safari OverConstrainedError has as name property 'Error' instead of 'OverConstrainedError'
                                                 error.name = error.constructor.name;
                                             }
-                                            let errorName, errorMessage;
                                             switch (error.name.toLowerCase()) {
                                                 case 'notfounderror':
                                                     errorName = OpenViduErrorName.INPUT_AUDIO_DEVICE_NOT_FOUND;
@@ -570,6 +577,11 @@ export class Publisher extends StreamManager {
                                                 }
                                                 errorCallback(new OpenViduError(errorName, errorMessage));
                                             });
+                                        break;
+                                    default:
+                                        errorName = OpenViduErrorName.HARDWARE_ERROR
+                                        errorMessage = "Hardware error occurred at the operating system, browser, or web page level which prevented access to the device";
+                                        errorCallback(new OpenViduError(errorName, errorMessage));
                                         break;
                                 }
                             });
