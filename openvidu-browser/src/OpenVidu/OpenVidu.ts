@@ -641,8 +641,15 @@ export class OpenVidu {
   /**
    * @hidden
    */
-  closeWs(): void {
-      this.jsonRpcClient.close(4102, "Connection closed by client");
+  closeWs(code: number, reason: string): void {
+    if (code == 0){
+      code = 4002
+    }
+
+    if (reason == ""){
+      reason = "code: [4002], reason: [Connection closed by client]"
+    }
+      this.jsonRpcClient.close(code,  "code: [" + code + "], reason: ["+reason+"]");
   }
 
   /**

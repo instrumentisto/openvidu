@@ -844,11 +844,11 @@ var Session = /** @class */ (function () {
                     if (error) {
                         console.error(error);
                     }
-                    _this.openvidu.closeWs();
+                    _this.openvidu.closeWs(4002, reason);
                 });
             }
             else {
-                this.openvidu.closeWs();
+                this.openvidu.closeWs(4002, reason);
             }
             this.stopPublisherStream(reason);
             if (!this.connection.disposed) {

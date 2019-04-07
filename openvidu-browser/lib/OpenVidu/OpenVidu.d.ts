@@ -149,7 +149,7 @@ export declare class OpenVidu {
     /**
      * @hidden
      */
-    closeWs(): void;
+    closeWs(code: number, reason: string): void;
     /**
      * @hidden
      */

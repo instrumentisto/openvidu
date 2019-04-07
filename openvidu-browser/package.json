@@ -11,7 +11,12 @@
         "wolfy87-eventemitter": "5.2.5"
     },
     "description": "OpenVidu Browser fork",
-    "keywords": ["webrtc", "openvidu", "kurento", "browser"],
+    "keywords": [
+        "webrtc",
+        "openvidu",
+        "kurento",
+        "browser"
+    ],
     "devDependencies": {
         "browserify": "16.2.3",
         "grunt": "1.0.3",
@@ -44,5 +49,5 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "types": "lib/index.d.ts",
-    "version": "2.7.0-r2"
+    "version": "2.7.0-r3"
 }

@@ -980,10 +980,10 @@ export class Session implements EventDispatcher {
                     if (error) {
                         console.error(error);
                     }
-                    this.openvidu.closeWs();
+                    this.openvidu.closeWs(4002, reason);
                 });
             } else {
-                this.openvidu.closeWs();
+                this.openvidu.closeWs(4002, reason);
             }
 
             this.stopPublisherStream(reason);
