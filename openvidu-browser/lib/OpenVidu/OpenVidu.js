@@ -553,8 +553,14 @@ var OpenVidu = /** @class */ (function () {
     /**
      * @hidden
      */
-    OpenVidu.prototype.closeWs = function () {
-        this.jsonRpcClient.close(4102, "Connection closed by client");
+    OpenVidu.prototype.closeWs = function (code, reason) {
+        if (code == 0) {
+            code = 4002;
+        }
+        if (reason == "") {
+            reason = "code: [4002], reason: [Connection closed by client]";
+        }
+        this.jsonRpcClient.close(code, "code: [" + code + "], reason: [" + reason + "]");
     };
     /**
      * @hidden

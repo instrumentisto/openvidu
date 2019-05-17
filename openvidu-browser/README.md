@@ -13,7 +13,7 @@ It fork implements reconnect for web-socket connection with signaling server.
 npm i instrumentisto-browser
 ```
 
-Current version: 2.7.0-r1.
+Current version: 2.7.0-r3.
 
 Full [docks][2].
 
