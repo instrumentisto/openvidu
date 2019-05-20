@@ -5,7 +5,7 @@ import {Publisher, Session, Subscriber, Stream} from "../..";
 /**
  * Defines quality changed event.
  */
-export class ChangeQualityEvent extends Event {
+export class FlowQualityChangeEvent extends Event {
 
   /**
    * Stream object that was created or destroyed
@@ -30,6 +30,6 @@ export class ChangeQualityEvent extends Event {
    * @hidden
    */
   callDefaultBehavior() {
-    // Ddoes nothing
+    // Does nothing.
   }
 }
