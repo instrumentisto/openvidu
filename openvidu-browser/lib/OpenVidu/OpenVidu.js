@@ -545,7 +545,8 @@ var OpenVidu = /** @class */ (function () {
                 streamPropertyChanged: this.session.onStreamPropertyChanged.bind(this.session),
                 filterEventDispatched: this.session.onFilterEventDispatched.bind(this.session),
                 iceCandidate: this.session.recvIceCandidate.bind(this.session),
-                mediaError: this.session.onMediaError.bind(this.session)
+                mediaError: this.session.onMediaError.bind(this.session),
+                qualityChanged: this.session.onQualityChanged.bind(this.session)
             }
         };
         this.jsonRpcClient = new RpcBuilder.clients.JsonRpcClient(config);

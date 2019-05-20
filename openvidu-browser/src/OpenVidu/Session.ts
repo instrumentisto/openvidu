@@ -42,6 +42,7 @@ import { VideoInsertMode } from '../OpenViduInternal/Enums/VideoInsertMode';
 
 import EventEmitter = require('wolfy87-eventemitter');
 import platform = require('platform');
+import {ChangeQualityEvent} from "../OpenViduInternal/Events/ChangeQualityEvent";
 
 /**
  * Represents a video call. It can also be seen as a videoconference room where multiple users can connect.
@@ -844,6 +845,13 @@ export class Session implements EventDispatcher {
                 });
         }
     }
+
+  /**
+   * @hidden
+   */
+  onQualityChanged(msg): void {
+    this.ee.emitEvent("qualityChanged", [new ChangeQualityEvent(true, this, "qualityChanged", this.connection.stream, msg.valueOf())])
+  }
 
     /**
      * @hidden

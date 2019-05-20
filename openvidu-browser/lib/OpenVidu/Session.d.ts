@@ -246,6 +246,10 @@ export declare class Session implements EventDispatcher {
     /**
      * @hidden
      */
+    onQualityChanged(msg: any): void;
+    /**
+     * @hidden
+     */
     recvIceCandidate(msg: any): void;
     /**
      * @hidden
