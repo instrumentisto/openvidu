@@ -552,7 +552,7 @@ export class Session implements EventDispatcher {
     /**
      * See [[EventDispatcher.on]]
      */
-    on(type: string, handler: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent) => void): EventDispatcher {
+    on(type: string, handler: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent) => void): EventDispatcher {
 
         this.ee.on(type, event => {
             if (event) {
@@ -581,7 +581,7 @@ export class Session implements EventDispatcher {
     /**
      * See [[EventDispatcher.once]]
      */
-    once(type: string, handler: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent) => void): Session {
+    once(type: string, handler: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent) => void): Session {
 
         this.ee.once(type, event => {
             if (event) {
@@ -610,7 +610,7 @@ export class Session implements EventDispatcher {
     /**
      * See [[EventDispatcher.off]]
      */
-    off(type: string, handler?: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent) => void): Session {
+    off(type: string, handler?: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent) => void): Session {
 
         if (!handler) {
             this.ee.removeAllListeners(type);
