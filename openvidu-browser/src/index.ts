@@ -32,3 +32,5 @@ export { PublisherProperties } from './OpenViduInternal/Interfaces/Public/Publis
 export { SignalOptions } from './OpenViduInternal/Interfaces/Public/SignalOptions';
 export { StreamManagerVideo } from './OpenViduInternal/Interfaces/Public/StreamManagerVideo';
 export { SubscriberProperties } from './OpenViduInternal/Interfaces/Public/SubscriberProperties';
+export { MediaFlowQualityValue } from './OpenViduInternal/Enums/MediaFlowQualityValue';
+export { MediaFlowQualityChangeEvent } from './OpenViduInternal/Events/MediaFlowQualityChangeEvent'
