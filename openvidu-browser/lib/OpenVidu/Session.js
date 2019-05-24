@@ -30,7 +30,7 @@ var OpenViduError_1 = require("../OpenViduInternal/Enums/OpenViduError");
 var VideoInsertMode_1 = require("../OpenViduInternal/Enums/VideoInsertMode");
 var EventEmitter = require("wolfy87-eventemitter");
 var platform = require("platform");
-var FlowQualityChangeEvent_1 = require("../OpenViduInternal/Events/FlowQualityChangeEvent");
+var MediaFlowQualityChangeEvent_1 = require("../OpenViduInternal/Events/MediaFlowQualityChangeEvent");
 /**
  * Represents a video call. It can also be seen as a videoconference room where multiple users can connect.
  * Participants who publish their videos to a session can be seen by the rest of users connected to that specific session.
@@ -724,7 +724,7 @@ var Session = /** @class */ (function () {
      * @hidden
      */
     Session.prototype.onQualityChanged = function (msg) {
-        this.ee.emitEvent("FlowQualityChange", [new FlowQualityChangeEvent_1.FlowQualityChangeEvent(true, this, "FlowQualityChange", this.connection.stream, msg.valueOf())]);
+        this.ee.emitEvent("FlowQualityChange", [new MediaFlowQualityChangeEvent_1.MediaFlowQualityChangeEvent(true, this, "FlowQualityChange", this.connection.stream, msg.valueOf())]);
     };
     /**
      * @hidden
