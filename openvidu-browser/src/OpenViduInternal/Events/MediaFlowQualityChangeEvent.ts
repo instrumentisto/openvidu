@@ -1,11 +1,11 @@
 import {Event} from "./Event";
-import {QualityValue} from '../Enums/QualityValue';
+import {MediaFlowQualityValue} from '../Enums/MediaFlowQualityValue';
 import {Publisher, Session, Subscriber, Stream} from "../..";
 
 /**
  * Defines quality changed event.
  */
-export class FlowQualityChangeEvent extends Event {
+export class MediaFlowQualityChangeEvent extends Event {
 
   /**
    * Stream object that was created or destroyed
@@ -15,12 +15,12 @@ export class FlowQualityChangeEvent extends Event {
   /**
    * Value of current quality.
    */
-  qualityValue: QualityValue;
+  qualityValue: MediaFlowQualityValue;
 
   /**
    * @hidden
    */
-  constructor(cancelable: boolean, target: Session | Publisher | Subscriber, type: string, stream: Stream, value: QualityValue) {
+  constructor(cancelable: boolean, target: Session | Publisher | Subscriber, type: string, stream: Stream, value: MediaFlowQualityValue) {
     super(cancelable, target, type);
     this.stream = stream;
     this.qualityValue = value;
