@@ -859,5 +859,4 @@ export class Stream implements EventDispatcher {
             this, ICEConnectionStateChangeEvent.ICE_CONNECTION_STATE_CHANGE_EVENT,
             state)])
   }
-
 }

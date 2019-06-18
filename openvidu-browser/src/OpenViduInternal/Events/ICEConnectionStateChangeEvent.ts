@@ -1,6 +1,9 @@
 import {Event} from "./Event";
-import {MediaFlowQualityValue, Publisher, Session, Stream, Subscriber} from "../..";
+import { Stream } from "../..";
 
+/**
+ * ICE connection state change event.
+ */
 export class ICEConnectionStateChangeEvent extends Event{
 
   /**

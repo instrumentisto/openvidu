@@ -73,7 +73,6 @@ export class WebRtcPeer {
         };
 
         this.pc.oniceconnectionstatechange = () =>{
-            console.log("RtcPeer ICE connection state change: "+this.pc.iceConnectionState);
             configuration.onIceConnectionStateChange(this.pc.iceConnectionState);
         };
 
