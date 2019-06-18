@@ -270,4 +270,10 @@ export declare class Stream implements EventDispatcher {
     private initWebRtcStats;
     private stopWebRtcStats;
     private getIceServersConf;
+    /**
+     * ICE connection state change event handler.
+     *
+     * @param state RTCPeerConnection.iceConnectionState value.
+     */
+    private iceConnectionStateChangeEventHandler;
 }

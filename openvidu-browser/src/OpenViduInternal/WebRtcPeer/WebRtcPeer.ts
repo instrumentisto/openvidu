@@ -27,6 +27,7 @@ export interface WebRtcPeerConfiguration {
     };
     simulcast: boolean;
     onicecandidate: (event) => void;
+    onIceConnectionStateChange: (state) => void;
     iceServers: RTCIceServer[] | undefined;
     mediaStream?: MediaStream;
     mode?: 'sendonly' | 'recvonly' | 'sendrecv';
@@ -69,6 +70,11 @@ export class WebRtcPeer {
                     this.pc.addIceCandidate(<RTCIceCandidate>this.iceCandidateList.shift());
                 }
             }
+        };
+
+        this.pc.oniceconnectionstatechange = () =>{
+            console.log("RtcPeer ICE connection state change: "+this.pc.iceConnectionState);
+            configuration.onIceConnectionStateChange(this.pc.iceConnectionState);
         };
 
         this.start();

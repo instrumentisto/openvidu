@@ -26,6 +26,7 @@ var OpenViduError_1 = require("../OpenViduInternal/Enums/OpenViduError");
 var EventEmitter = require("wolfy87-eventemitter");
 var hark = require("hark");
 var platform = require("platform");
+var ICEConnectionStateChangeEvent_1 = require("../OpenViduInternal/Events/ICEConnectionStateChangeEvent");
 platform['isIonicIos'] = (platform.product === 'iPhone' || platform.product === 'iPad') && platform.ua.indexOf('Safari') === -1;
 /**
  * Represents each one of the media streams available in OpenVidu Server for certain session.
@@ -531,6 +532,7 @@ var Stream = /** @class */ (function () {
                 mediaStream: _this.mediaStream,
                 mediaConstraints: userMediaConstraints,
                 onicecandidate: _this.connection.sendIceCandidate.bind(_this.connection),
+                onIceConnectionStateChange: _this.iceConnectionStateChangeEventHandler.bind(_this),
                 iceServers: _this.getIceServersConf(),
                 simulcast: false
             };
@@ -605,6 +607,7 @@ var Stream = /** @class */ (function () {
                 onicecandidate: _this.connection.sendIceCandidate.bind(_this.connection),
                 mediaConstraints: offerConstraints,
                 iceServers: _this.getIceServersConf(),
+                onIceConnectionStateChange: _this.iceConnectionStateChangeEventHandler.bind(_this),
                 simulcast: false
             };
             var successCallback = function (sdpOfferParam) {
@@ -693,6 +696,14 @@ var Stream = /** @class */ (function () {
             returnValue = undefined;
         }
         return returnValue;
+    };
+    /**
+     * ICE connection state change event handler.
+     *
+     * @param state RTCPeerConnection.iceConnectionState value.
+     */
+    Stream.prototype.iceConnectionStateChangeEventHandler = function (state) {
+        this.ee.emitEvent(ICEConnectionStateChangeEvent_1.ICEConnectionStateChangeEvent.ICE_CONNECTION_STATE_CHANGE_EVENT, [new ICEConnectionStateChangeEvent_1.ICEConnectionStateChangeEvent(true, this, ICEConnectionStateChangeEvent_1.ICEConnectionStateChangeEvent.ICE_CONNECTION_STATE_CHANGE_EVENT, state)]);
     };
     return Stream;
 }());
