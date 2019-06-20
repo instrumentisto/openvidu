@@ -1,11 +1,11 @@
 import { Connection } from './Connection';
 import { Event } from '../OpenViduInternal/Events/Event';
-import { Filter } from './Filter';
-import { Session } from './Session';
-import { StreamManager } from './StreamManager';
 import { EventDispatcher } from '../OpenViduInternal/Interfaces/Public/EventDispatcher';
+import { Filter } from './Filter';
 import { InboundStreamOptions } from '../OpenViduInternal/Interfaces/Private/InboundStreamOptions';
 import { OutboundStreamOptions } from '../OpenViduInternal/Interfaces/Private/OutboundStreamOptions';
+import { Session } from './Session';
+import { StreamManager } from './StreamManager';
 import { WebRtcPeer } from '../OpenViduInternal/WebRtcPeer/WebRtcPeer';
 import EventEmitter = require('wolfy87-eventemitter');
 /**

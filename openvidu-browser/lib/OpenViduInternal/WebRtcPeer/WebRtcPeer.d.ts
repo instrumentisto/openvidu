@@ -5,7 +5,7 @@ export interface WebRtcPeerConfiguration {
     };
     simulcast: boolean;
     onicecandidate: (event: any) => void;
-    onIceConnectionStateChange: (state: any) => void;
+    oniceconnectionstatechange: (state: any) => void;
     iceServers: RTCIceServer[] | undefined;
     mediaStream?: MediaStream;
     mode?: 'sendonly' | 'recvonly' | 'sendrecv';
