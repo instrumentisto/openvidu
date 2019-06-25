@@ -671,14 +671,14 @@ export class Stream implements EventDispatcher {
                 video: this.isSendVideo()
             };
 
-            const options = {
-                mediaStream: this.mediaStream,
-                mediaConstraints: userMediaConstraints,
-                onicecandidate: this.connection.sendIceCandidate.bind(this.connection),
-                oniceconnectionstatechange: this.iceConnectionStateChangeEventHandler.bind(this),
-                iceServers: this.getIceServersConf(),
-                simulcast: false
-            };
+      const options = {
+        mediaStream: this.mediaStream,
+        mediaConstraints: userMediaConstraints,
+        onicecandidate: this.connection.sendIceCandidate.bind(this.connection),
+        onIceConnectionStateChange: this.iceConnectionStateChangeEventHandler.bind(this),
+        iceServers: this.getIceServersConf(),
+        simulcast: false
+      };
 
             const successCallback = (sdpOfferParam) => {
                 console.debug('Sending SDP offer to publish as '
@@ -744,19 +744,19 @@ export class Stream implements EventDispatcher {
     private initWebRtcPeerReceive(): Promise<any> {
         return new Promise((resolve, reject) => {
 
-            const offerConstraints = {
-                audio: this.inboundStreamOpts.hasAudio,
-                video: this.inboundStreamOpts.hasVideo
-            };
-            console.debug("'Session.subscribe(Stream)' called. Constraints of generate SDP offer",
-                offerConstraints);
-            const options = {
-                onicecandidate: this.connection.sendIceCandidate.bind(this.connection),
-                mediaConstraints: offerConstraints,
-                iceServers: this.getIceServersConf(),
-                oniceconnectionstatechange: this.iceConnectionStateChangeEventHandler.bind(this),
-                simulcast: false
-            };
+      const offerConstraints = {
+        audio: this.inboundStreamOpts.hasAudio,
+        video: this.inboundStreamOpts.hasVideo
+      };
+      console.debug("'Session.subscribe(Stream)' called. Constraints of generate SDP offer",
+          offerConstraints);
+      const options = {
+        onicecandidate: this.connection.sendIceCandidate.bind(this.connection),
+        mediaConstraints: offerConstraints,
+        iceServers: this.getIceServersConf(),
+        onIceConnectionStateChange: this.iceConnectionStateChangeEventHandler.bind(this),
+        simulcast: false
+      };
 
             const successCallback = (sdpOfferParam) => {
                 console.debug('Sending SDP offer to subscribe to '

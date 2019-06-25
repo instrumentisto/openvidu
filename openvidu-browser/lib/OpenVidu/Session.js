@@ -249,6 +249,25 @@ var Session = /** @class */ (function () {
         });
         subscriber.stream.streamManager.removeAllVideos();
     };
+    Session.prototype.unsubscribeAsync = function (subscriber) {
+        var _this = this;
+        return new Promise(function (resolve, rejects) {
+            var connectionId = subscriber.stream.connection.connectionId;
+            _this.openvidu.sendRequest('unsubscribeFromVideo', { sender: subscriber.stream.connection.connectionId }, function (error) {
+                if (error) {
+                    console.error('Error unsubscribing from ' + connectionId, error);
+                    rejects(error);
+                }
+                else {
+                    console.info('Unsubscribed correctly from ' + connectionId);
+                }
+                subscriber.stream.disposeWebRtcPeer();
+                subscriber.stream.disposeMediaStream();
+                resolve();
+            });
+            subscriber.stream.streamManager.removeAllVideos();
+        });
+    };
     /**
      * Publishes to the Session the Publisher object
      *

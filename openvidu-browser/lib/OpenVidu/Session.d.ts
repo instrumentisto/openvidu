@@ -125,6 +125,10 @@ export declare class Session implements EventDispatcher {
      */
     unsubscribe(subscriber: Subscriber): void;
     /**
+     * Promisified version of [[Session.unsubscribe]]
+     */
+    unsubscribeAsync(subscriber: Subscriber): Promise<void>;
+    /**
      * Publishes to the Session the Publisher object
      *
      * #### Events dispatched

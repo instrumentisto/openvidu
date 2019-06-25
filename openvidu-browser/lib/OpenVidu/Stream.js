@@ -532,7 +532,7 @@ var Stream = /** @class */ (function () {
                 mediaStream: _this.mediaStream,
                 mediaConstraints: userMediaConstraints,
                 onicecandidate: _this.connection.sendIceCandidate.bind(_this.connection),
-                oniceconnectionstatechange: _this.iceConnectionStateChangeEventHandler.bind(_this),
+                onIceConnectionStateChange: _this.iceConnectionStateChangeEventHandler.bind(_this),
                 iceServers: _this.getIceServersConf(),
                 simulcast: false
             };
@@ -607,7 +607,7 @@ var Stream = /** @class */ (function () {
                 onicecandidate: _this.connection.sendIceCandidate.bind(_this.connection),
                 mediaConstraints: offerConstraints,
                 iceServers: _this.getIceServersConf(),
-                oniceconnectionstatechange: _this.iceConnectionStateChangeEventHandler.bind(_this),
+                onIceConnectionStateChange: _this.iceConnectionStateChangeEventHandler.bind(_this),
                 simulcast: false
             };
             var successCallback = function (sdpOfferParam) {

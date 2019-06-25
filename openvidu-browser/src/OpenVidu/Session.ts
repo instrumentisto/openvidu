@@ -322,6 +322,34 @@ export class Session implements EventDispatcher {
         subscriber.stream.streamManager.removeAllVideos();
     }
 
+    /**
+     * Promisified version of [[Session.unsubscribe]]
+     */
+    unsubscribeAsync(subscriber:Subscriber): Promise<void>;
+
+    unsubscribeAsync(subscriber: Subscriber): Promise<void>{
+        return new Promise<void>((resolve, rejects) =>{
+            const connectionId = subscriber.stream.connection.connectionId;
+
+            this.openvidu.sendRequest(
+                'unsubscribeFromVideo',
+                { sender: subscriber.stream.connection.connectionId },
+                (error) => {
+                    if (error) {
+                        console.error('Error unsubscribing from ' + connectionId, error);
+                        rejects(error)
+                    } else {
+                        console.info('Unsubscribed correctly from ' + connectionId);
+                    }
+                    subscriber.stream.disposeWebRtcPeer();
+                    subscriber.stream.disposeMediaStream();
+                    resolve();
+                }
+            );
+            subscriber.stream.streamManager.removeAllVideos();
+        })
+    }
+
 
     /**
      * Publishes to the Session the Publisher object
