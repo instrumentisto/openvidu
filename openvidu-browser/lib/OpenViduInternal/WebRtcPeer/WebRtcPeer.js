@@ -64,6 +64,9 @@ var WebRtcPeer = /** @class */ (function () {
                 }
             }
         };
+        this.pc.oniceconnectionstatechange = function () {
+            configuration.oniceconnectionstatechange(_this.pc.iceConnectionState);
+        };
         this.start();
     }
     /**

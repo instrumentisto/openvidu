@@ -50,4 +50,6 @@ var MediaFlowQualityValue_1 = require("./OpenViduInternal/Enums/MediaFlowQuality
 exports.MediaFlowQualityValue = MediaFlowQualityValue_1.MediaFlowQualityValue;
 var MediaFlowQualityChangeEvent_1 = require("./OpenViduInternal/Events/MediaFlowQualityChangeEvent");
 exports.MediaFlowQualityChangeEvent = MediaFlowQualityChangeEvent_1.MediaFlowQualityChangeEvent;
+var ICEConnectionStateChangeEvent_1 = require("./OpenViduInternal/Events/ICEConnectionStateChangeEvent");
+exports.ICEConnectionStateChangeEvent = ICEConnectionStateChangeEvent_1.ICEConnectionStateChangeEvent;
 //# sourceMappingURL=index.js.map

@@ -1,6 +1,7 @@
 import { Filter } from '../../OpenVidu/Filter';
 import { StreamManager } from '../../OpenVidu/StreamManager';
 import { Session } from '../../OpenVidu/Session';
+import { Stream } from '../../OpenVidu/Stream';
 export declare abstract class Event {
     /**
      * Whether the event has a default behavior that may be prevented by calling [[Event.preventDefault]]
@@ -9,7 +10,7 @@ export declare abstract class Event {
     /**
      * The object that dispatched the event
      */
-    target: Session | StreamManager | Filter;
+    target: Session | StreamManager | Filter | Stream;
     /**
      * The type of event. This is the same string you pass as first parameter when calling method `on()` of any object implementing [[EventDispatcher]] interface
      */
@@ -18,7 +19,7 @@ export declare abstract class Event {
     /**
      * @hidden
      */
-    constructor(cancelable: boolean, target: Session | StreamManager | Filter, type: string);
+    constructor(cancelable: boolean, target: Session | StreamManager | Filter | Stream, type: string);
     /**
      * Whether the default beahivour of the event has been prevented or not. Call [[Event.preventDefault]] to prevent it
      */

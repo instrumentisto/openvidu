@@ -30,7 +30,7 @@ export abstract class Event {
     /**
      * The object that dispatched the event
      */
-    target: Session | StreamManager | Filter;
+    target: Session | StreamManager | Filter | Stream;
 
     /**
      * The type of event. This is the same string you pass as first parameter when calling method `on()` of any object implementing [[EventDispatcher]] interface
@@ -42,7 +42,7 @@ export abstract class Event {
     /**
      * @hidden
      */
-    constructor(cancelable: boolean, target: Session | StreamManager | Filter, type: string) {
+    constructor(cancelable: boolean, target: Session | StreamManager | Filter | Stream, type: string) {
         this.cancelable = cancelable;
         this.target = target;
         this.type = type;
