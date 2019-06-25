@@ -17,18 +17,19 @@
 
 import { Connection } from './Connection';
 import { Event } from '../OpenViduInternal/Events/Event';
+import { EventDispatcher } from '../OpenViduInternal/Interfaces/Public/EventDispatcher';
 import { Filter } from './Filter';
+import { InboundStreamOptions } from '../OpenViduInternal/Interfaces/Private/InboundStreamOptions';
+import { OpenViduError, OpenViduErrorName } from '../OpenViduInternal/Enums/OpenViduError';
+import { OutboundStreamOptions } from '../OpenViduInternal/Interfaces/Private/OutboundStreamOptions';
+import { PublisherSpeakingEvent } from '../OpenViduInternal/Events/PublisherSpeakingEvent';
 import { Session } from './Session';
 import { StreamManager } from './StreamManager';
-import { EventDispatcher } from '../OpenViduInternal/Interfaces/Public/EventDispatcher';
-import { InboundStreamOptions } from '../OpenViduInternal/Interfaces/Private/InboundStreamOptions';
-import { OutboundStreamOptions } from '../OpenViduInternal/Interfaces/Private/OutboundStreamOptions';
-import { WebRtcPeer, WebRtcPeerSendonly, WebRtcPeerRecvonly, WebRtcPeerSendrecv } from '../OpenViduInternal/WebRtcPeer/WebRtcPeer';
-import { WebRtcStats } from '../OpenViduInternal/WebRtcStats/WebRtcStats';
-import { PublisherSpeakingEvent } from '../OpenViduInternal/Events/PublisherSpeakingEvent';
 import { StreamManagerEvent } from '../OpenViduInternal/Events/StreamManagerEvent';
 import { StreamPropertyChangedEvent } from '../OpenViduInternal/Events/StreamPropertyChangedEvent';
-import { OpenViduError, OpenViduErrorName } from '../OpenViduInternal/Enums/OpenViduError';
+import { WebRtcPeer, WebRtcPeerSendonly, WebRtcPeerRecvonly, WebRtcPeerSendrecv } from '../OpenViduInternal/WebRtcPeer/WebRtcPeer';
+import { WebRtcStats } from '../OpenViduInternal/WebRtcStats/WebRtcStats';
+import {ICEConnectionStateChangeEvent} from "../OpenViduInternal/Events/ICEConnectionStateChangeEvent";
 
 import EventEmitter = require('wolfy87-eventemitter');
 import hark = require('hark');
@@ -674,6 +675,7 @@ export class Stream implements EventDispatcher {
                 mediaStream: this.mediaStream,
                 mediaConstraints: userMediaConstraints,
                 onicecandidate: this.connection.sendIceCandidate.bind(this.connection),
+                oniceconnectionstatechange: this.iceConnectionStateChangeEventHandler.bind(this),
                 iceServers: this.getIceServersConf(),
                 simulcast: false
             };
@@ -752,6 +754,7 @@ export class Stream implements EventDispatcher {
                 onicecandidate: this.connection.sendIceCandidate.bind(this.connection),
                 mediaConstraints: offerConstraints,
                 iceServers: this.getIceServersConf(),
+                oniceconnectionstatechange: this.iceConnectionStateChangeEventHandler.bind(this),
                 simulcast: false
             };
 
@@ -845,4 +848,15 @@ export class Stream implements EventDispatcher {
         return returnValue;
     }
 
+  /**
+   * ICE connection state change event handler.
+   *
+   * @param state RTCPeerConnection.iceConnectionState value.
+   */
+  private iceConnectionStateChangeEventHandler(state: RTCIceConnectionState) {
+    this.ee.emitEvent(ICEConnectionStateChangeEvent.ICE_CONNECTION_STATE_CHANGE_EVENT,
+        [new ICEConnectionStateChangeEvent(true,
+            this, ICEConnectionStateChangeEvent.ICE_CONNECTION_STATE_CHANGE_EVENT,
+            state)])
+  }
 }

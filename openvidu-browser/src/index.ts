@@ -33,4 +33,5 @@ export { SignalOptions } from './OpenViduInternal/Interfaces/Public/SignalOption
 export { StreamManagerVideo } from './OpenViduInternal/Interfaces/Public/StreamManagerVideo';
 export { SubscriberProperties } from './OpenViduInternal/Interfaces/Public/SubscriberProperties';
 export { MediaFlowQualityValue } from './OpenViduInternal/Enums/MediaFlowQualityValue';
-export { MediaFlowQualityChangeEvent } from './OpenViduInternal/Events/MediaFlowQualityChangeEvent'
+export { MediaFlowQualityChangeEvent } from './OpenViduInternal/Events/MediaFlowQualityChangeEvent';
+export { ICEConnectionStateChangeEvent } from './OpenViduInternal/Events/ICEConnectionStateChangeEvent';

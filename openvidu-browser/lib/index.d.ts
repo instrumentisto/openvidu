@@ -31,3 +31,4 @@ export { StreamManagerVideo } from './OpenViduInternal/Interfaces/Public/StreamM
 export { SubscriberProperties } from './OpenViduInternal/Interfaces/Public/SubscriberProperties';
 export { MediaFlowQualityValue } from './OpenViduInternal/Enums/MediaFlowQualityValue';
 export { MediaFlowQualityChangeEvent } from './OpenViduInternal/Events/MediaFlowQualityChangeEvent';
+export { ICEConnectionStateChangeEvent } from './OpenViduInternal/Events/ICEConnectionStateChangeEvent';
