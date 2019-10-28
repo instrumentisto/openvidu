@@ -187,6 +187,10 @@ function JsonRpcClient(configuration) {
                     }
                 } catch (e) {}
                 error.requestTime = requestTime;
+
+                if (configuration.rpc.rpcRequestError) {
+                    configuration.rpc.rpcRequestError(error);
+                }
             }
             if (callback) {
                 if (result != undefined && result.value !== 'pong') {

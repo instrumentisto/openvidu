@@ -39,10 +39,11 @@ import { StreamEvent } from '../OpenViduInternal/Events/StreamEvent';
 import { StreamPropertyChangedEvent } from '../OpenViduInternal/Events/StreamPropertyChangedEvent';
 import { OpenViduError, OpenViduErrorName } from '../OpenViduInternal/Enums/OpenViduError';
 import { VideoInsertMode } from '../OpenViduInternal/Enums/VideoInsertMode';
+import {MediaFlowQualityChangeEvent} from "../OpenViduInternal/Events/MediaFlowQualityChangeEvent";
+import {RpcRequestError} from "../OpenViduInternal/Events/RpcRequestError";
 
 import EventEmitter = require('wolfy87-eventemitter');
 import platform = require('platform');
-import {MediaFlowQualityChangeEvent} from "../OpenViduInternal/Events/MediaFlowQualityChangeEvent";
 
 /**
  * Represents a video call. It can also be seen as a videoconference room where multiple users can connect.
@@ -851,6 +852,10 @@ export class Session implements EventDispatcher {
    */
   onQualityChanged(msg): void {
     this.ee.emitEvent("FlowQualityChange", [new MediaFlowQualityChangeEvent(true, this, "FlowQualityChange", this.connection.stream, msg.valueOf())])
+  }
+
+  onRpcRequestError(error): void {
+    this.ee.emitEvent("rpcRequestError", [new RpcRequestError(true, this, "rpcRequestError", error)])
   }
 
     /**

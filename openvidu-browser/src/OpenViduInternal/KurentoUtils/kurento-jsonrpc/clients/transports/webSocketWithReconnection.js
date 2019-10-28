@@ -68,7 +68,8 @@ var CLOSED = 3;
 		ondisconnect : callback method to invoke when the connection is lost,
 		onreconnecting : callback method to invoke when the client is reconnecting,
 		onreconnected : callback method to invoke when the client successfully reconnects,
-	};
+     	onerror : callback method to invoke when there is an error
+  };
  */
 function WebSocketWithReconnection(config) {
 
