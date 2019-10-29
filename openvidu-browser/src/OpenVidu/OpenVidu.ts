@@ -207,8 +207,6 @@ export class OpenVidu {
       };
     } else {
 
-      // Matches 'initPublisher(targetElement)' or 'initPublisher(targetElement, completionHandler)'
-
       properties = {
         insertMode: VideoInsertMode.APPEND,
         mirror: true,
@@ -616,8 +614,10 @@ export class OpenVidu {
         useSockJS: false,
         onconnected: onConnectSucces,
         ondisconnect: this.disconnectCallback.bind(this),
+        onreconnectinit: this.reconnectInitCallback.bind(this),
         onreconnecting: this.reconnectingCallback.bind(this),
-        onreconnected: this.reconnectedCallback.bind(this)
+        onreconnected: this.reconnectedCallback.bind(this),
+        onerror: this.errorCallback.bind(this)
       },
       rpc: {
         requestTimeout: process.env.OPENVIDU_BROWSER_PING_TIMEOUT || 10000,
@@ -704,6 +704,18 @@ export class OpenVidu {
     if (!this.isRoomAvailable()) {
       alert('Connection error. Please reload page.');
     }
+  }
+
+  private errorCallback(error): void {
+
+    console.warn("errorCallback");
+
+  }
+
+  private reconnectInitCallback(): void {
+
+    console.warn("reconnectInitCallback");
+
   }
 
   private reconnectedCallback(): void {

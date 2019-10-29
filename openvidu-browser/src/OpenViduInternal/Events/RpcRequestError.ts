@@ -1,5 +1,5 @@
 import {Event} from "./Event";
-import {Publisher, Session, Subscriber} from "../..";
+import {Session} from "../..";
 
 /**
  * Defines rpc request error event.
@@ -11,7 +11,7 @@ export class RpcRequestError extends Event {
   /**
    * @hidden
    */
-  constructor(cancelable: boolean, target: Session | Publisher | Subscriber, type: string, error: Object) {
+  constructor(cancelable: boolean, target: Session, type: string, error: Object) {
     super(cancelable, target, type);
     this.error = error;
   }

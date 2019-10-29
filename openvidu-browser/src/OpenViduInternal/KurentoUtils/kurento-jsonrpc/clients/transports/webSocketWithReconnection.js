@@ -240,6 +240,11 @@ function WebSocketWithReconnection(config) {
    */
   this.reconnectWs = function () {
     Logger.log("reconnectWs");
+
+    if (config.onreconnectinit) {
+      config.onreconnectinit();
+    }
+
     ws.close(1000, "Close Web socket for reconnection")
   };
 
