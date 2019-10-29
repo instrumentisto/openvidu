@@ -31,6 +31,8 @@ import * as screenSharing from '../OpenViduInternal/ScreenSharing/Screen-Capturi
 
 import RpcBuilder = require('../OpenViduInternal/KurentoUtils/kurento-jsonrpc');
 import platform = require('platform');
+import {RpcTransportStateChangedEvent} from "../OpenViduInternal/Events/RpcTransportStateChangedEvent";
+import {RpcTransportState} from "../OpenViduInternal/Enums/RpcTransportState";
 platform['isIonicIos'] = (platform.product === 'iPhone' || platform.product === 'iPad') && platform.ua!!.indexOf('Safari') === -1;
 
 /**
@@ -605,14 +607,15 @@ export class OpenVidu {
   /**
    * @hidden
    */
-  startWs(onConnectSucces: (error: Error) => void): void {
+  startWs(onConnectSuccess: (error: Error) => void): void {
+
     const config = {
       heartbeat: process.env.OPENVIDU_BROWSER_PING_PERIOD || 5000,
       sendCloseMessage: false,
       ws: {
         uri: this.wsUri,
         useSockJS: false,
-        onconnected: onConnectSucces,
+        onconnected: onConnectSuccess,
         ondisconnect: this.disconnectCallback.bind(this),
         onreconnectinit: this.reconnectInitCallback.bind(this),
         onreconnecting: this.reconnectingCallback.bind(this),
@@ -690,34 +693,36 @@ export class OpenVidu {
 
 
   /* Private methods */
+  private emitTransportStateChanged(state: RpcTransportState, error?:Object): void {
+      this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged",state, error )]);
+  }
 
   private stopReconnectAttemptsCallback(): void {
-    console.warn('stopReconnectAttemptsCallback');
     this.session.onLostConnection("Stop reconnect attempts");
+    this.emitTransportStateChanged(RpcTransportState.STOPED_RECONNECTION_ATTEMPTS, undefined);
   }
 
   private disconnectCallback(code, willReconnect): void {
     if (!willReconnect && code !== 1000) {
       this.session.onLostConnection("Connection closed by remote server with code: " + code);
     }
-
-    console.warn('disconnectCallback');
+    this.emitTransportStateChanged(RpcTransportState.DISCONNECTED, undefined);
   }
 
   private reconnectingCallback(): void {
-    console.warn('reconnectingCallback');
+    this.emitTransportStateChanged(RpcTransportState.RECONNECTING, undefined);
   }
 
   private errorCallback(error): void {
-    console.warn("errorCallback " + error);
+    this.emitTransportStateChanged(RpcTransportState.ERROR, error);
   }
 
   private reconnectInitCallback(): void {
-    console.warn("reconnectInitCallback");
+    this.emitTransportStateChanged(RpcTransportState.RECONNECT_INIT, undefined);
   }
 
   private reconnectedCallback(): void {
-    console.warn("reconnectedCallback");
+    this.emitTransportStateChanged(RpcTransportState.RECONNECTED, undefined);
     if (this.isRoomAvailable()) {
       this.sendRequest("connect", {sessionId: this.session.connection.rpcSessionId}, (error, response)=> {
         if(error != null){

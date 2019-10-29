@@ -2,12 +2,12 @@
  * Quality indicator enum.
  * Defines media flow quality values.
  */
-export enum WebSocketState {
+export enum RpcTransportState {
 
-  CONNECTED,
+  DISCONNECTED,
   RECONNECT_INIT,
   RECONNECTING,
   RECONNECTED,
-  DISCONNECTED,
+  STOPED_RECONNECTION_ATTEMPTS,
   ERROR
 }

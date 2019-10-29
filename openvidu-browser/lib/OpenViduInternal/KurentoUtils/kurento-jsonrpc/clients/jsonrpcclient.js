@@ -17,12 +17,48 @@ function JsonRpcClient(configuration) {
     var pingPongStarted = false;
     var pingInterval;
     var status = DISCONNECTED;
+    var ondisconnect = wsConfig.ondisconnect;
+    var onreconnectinit = wsConfig.onreconnectinit;
     var onreconnecting = wsConfig.onreconnecting;
     var onreconnected = wsConfig.onreconnected;
     var onconnected = wsConfig.onconnected;
     var onerror = wsConfig.onerror;
+    var onstopreconnectattempts = wsConfig.onstopreconnectattempts;
     configuration.rpc.pull = function (params, request) {
         request.reply(null, "push");
+    };
+    wsConfig.onconnected = function () {
+        Logger.debug("--------- ONCONNECTED -----------");
+        if (status === CONNECTED) {
+            Logger.error("Websocket already in CONNECTED state when receiving a new ONCONNECTED message. Ignoring it");
+            return;
+        }
+        status = CONNECTED;
+        enabledPings = true;
+        usePing();
+        if (onconnected) {
+            onconnected();
+        }
+    };
+    wsConfig.ondisconnect = function (code) {
+        clearInterval(pingInterval);
+        pingPongStarted = false;
+        enabledPings = false;
+        pingNextNum = -1;
+        rpc.cancel();
+        if (ondisconnect) {
+            ondisconnect(code);
+        }
+    };
+    wsConfig.onreconnectinit = function () {
+        if (onreconnectinit) {
+            onreconnectinit();
+        }
+    };
+    wsConfig.onstopreconnectattempts = function () {
+        if (onstopreconnectattempts) {
+            onstopreconnectattempts();
+        }
     };
     wsConfig.onreconnecting = function () {
         Logger.debug("--------- ONRECONNECTING -----------");
@@ -50,19 +86,6 @@ function JsonRpcClient(configuration) {
         updateNotReconnectIfLessThan();
         if (onreconnected) {
             onreconnected();
-        }
-    };
-    wsConfig.onconnected = function () {
-        Logger.debug("--------- ONCONNECTED -----------");
-        if (status === CONNECTED) {
-            Logger.error("Websocket already in CONNECTED state when receiving a new ONCONNECTED message. Ignoring it");
-            return;
-        }
-        status = CONNECTED;
-        enabledPings = true;
-        usePing();
-        if (onconnected) {
-            onconnected();
         }
     };
     wsConfig.onerror = function (error) {
@@ -114,8 +137,12 @@ function JsonRpcClient(configuration) {
                         Logger.error("ERROR DATA:" + JSON.stringify(error.data));
                     }
                 }
-                catch (e) { }
+                catch (e) {
+                }
                 error.requestTime = requestTime;
+                if (configuration.rpc.rpcRequestError) {
+                    configuration.rpc.rpcRequestError(error);
+                }
             }
             if (callback) {
                 if (result != undefined && result.value !== 'pong') {

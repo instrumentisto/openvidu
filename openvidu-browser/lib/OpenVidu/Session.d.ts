@@ -248,6 +248,7 @@ export declare class Session implements EventDispatcher {
      * @hidden
      */
     onQualityChanged(msg: any): void;
+    onRpcRequestError(error: any): void;
     /**
      * @hidden
      */

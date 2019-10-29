@@ -1,17 +1,15 @@
 "use strict";
 var Logger = console;
 var MAX_RETRY_TIME_MS = 10000;
-var CONNECTING = 0;
-var OPEN = 1;
-var CLOSING = 2;
-var CLOSED = 3;
+var RECONNECT_RETRY_INTERVAL_STEP = 1500;
+var WS_STATE_CLOSING = 2;
 function WebSocketWithReconnection(config) {
     var totalNumRetries = 1;
     var registerMessageHandler;
     var reconnecting = false;
     var ws;
     function onOpen() {
-        ws.addEventListener("close", onClose);
+        totalNumRetries = 1;
         if (reconnecting === true) {
             registerMessageHandler();
             if (config.onreconnected) {
@@ -24,20 +22,26 @@ function WebSocketWithReconnection(config) {
                 config.onconnected();
             }
         }
-        totalNumRetries = 1;
     }
     function onClose(event) {
         removeAllListeners();
         Logger.log("Close Web Socket code: " + event.code + " reason: " + event.reason);
-        if (event.code > 4000) {
+        var scheduleReconnect = true;
+        if (event.code === 1000) {
+            scheduleReconnect = false;
+        }
+        else if (event.code > 4000) {
+            scheduleReconnect = false;
             if (config.onerror) {
                 config.onerror(event.reason);
             }
-            return;
         }
-        if (reconnecting === false) {
+        if (config.ondisconnect) {
+            config.ondisconnect(event.code, scheduleReconnect);
+        }
+        if (reconnecting === false && scheduleReconnect) {
             reconnecting = true;
-            reconnect(500 * totalNumRetries);
+            reconnect(RECONNECT_RETRY_INTERVAL_STEP * totalNumRetries);
         }
     }
     function onError(event) {
@@ -45,9 +49,12 @@ function WebSocketWithReconnection(config) {
         if (config.onerror) {
             config.onerror("Web socket establishing error");
         }
-        reconnect(500 * totalNumRetries);
+        reconnect(RECONNECT_RETRY_INTERVAL_STEP * totalNumRetries);
     }
     function resetWebSocket(config) {
+        if (ws) {
+            removeAllListeners();
+        }
         var newWS;
         if (config.useSockJS) {
             newWS = new SockJS(config.uri);
@@ -56,6 +63,7 @@ function WebSocketWithReconnection(config) {
             newWS = new WebSocket(config.uri);
         }
         newWS.addEventListener("open", onOpen);
+        newWS.addEventListener("close", onClose);
         newWS.addEventListener("error", onError);
         return newWS;
     }
@@ -66,22 +74,23 @@ function WebSocketWithReconnection(config) {
     }
     function reconnect(reconnectInterval) {
         if (reconnectInterval > MAX_RETRY_TIME_MS) {
-            if (config.onerror) {
-                config.onerror("Server is not responding");
+            if (config.onstopreconnectattempts) {
+                config.onstopreconnectattempts();
             }
-            return;
         }
-        if (config.onreconnecting) {
-            config.onreconnecting();
-        }
-        setTimeout(function () {
+        else {
             totalNumRetries++;
-            ws = resetWebSocket(config);
-        }, reconnectInterval);
+            setTimeout(function () {
+                if (config.onreconnecting) {
+                    config.onreconnecting();
+                }
+                ws = resetWebSocket(config);
+            }, reconnectInterval);
+        }
     }
     ws = resetWebSocket(config);
     this.close = function (code, reason) {
-        if (ws.readyState < CLOSING) {
+        if (ws.readyState < WS_STATE_CLOSING) {
             ws.close(code, reason);
         }
     };
@@ -100,6 +109,9 @@ function WebSocketWithReconnection(config) {
     };
     this.reconnectWs = function () {
         Logger.log("reconnectWs");
+        if (config.onreconnectinit) {
+            config.onreconnectinit();
+        }
         ws.close(1000, "Close Web socket for reconnection");
     };
     this.send = function (message) {

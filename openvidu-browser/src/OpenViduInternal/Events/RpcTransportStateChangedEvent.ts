@@ -1,21 +1,21 @@
 import {Event} from "./Event";
-import {WebSocketState} from '../Enums/WebSocketState';
+import {RpcTransportState} from '../Enums/RpcTransportState';
 import {Session} from "../..";
 
 /**
  * Defines websocket state changed event.
  */
-export class WebSocketStateChangedEvent extends Event {
+export class RpcTransportStateChangedEvent extends Event {
 
-  state: WebSocketState;
+  state: RpcTransportState;
   error: undefined | Object;
 
   /**
    * @hidden
    */
-  constructor(cancelable: boolean, target: Session, type: string, value: WebSocketState, error?:Object) {
+  constructor(cancelable: boolean, target: Session, type: string, state: RpcTransportState, error?:Object) {
     super(cancelable, target, type);
-    this.state = value;
+    this.state = state;
     this.error = error;
   }
 
