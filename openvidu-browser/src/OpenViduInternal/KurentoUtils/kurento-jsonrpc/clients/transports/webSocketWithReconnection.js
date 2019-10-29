@@ -29,33 +29,16 @@ var Logger = console;
  */
 var MAX_RETRY_TIME_MS = 10000;
 
-/**
- * Web socket ready state connecting.
- *
- * @type {number} connecting state.
- */
-var CONNECTING = 0;
 
-/**
- * Web socket ready state open.
- *
- * @type {number} open state.
- */
-var OPEN = 1;
+var RECONNECT_RETRY_INTERVAL_STEP = 1500;
 
 /**
  * Web socket ready state closing.
  *
  * @type {number} closing state.
  */
-var CLOSING = 2;
+var WS_STATE_CLOSING = 2;
 
-/**
- * Web socket ready state closed.
- *
- * @type {number} closed state.
- */
-var CLOSED = 3;
 
 /**
  *
@@ -69,6 +52,7 @@ var CLOSED = 3;
 		onreconnecting : callback method to invoke when the client is reconnecting,
 		onreconnected : callback method to invoke when the client successfully reconnects,
      	onerror : callback method to invoke when there is an error
+     	onstopreconnectattempts: callback method to invoke when client stops reconnect attempts
   };
  */
 function WebSocketWithReconnection(config) {
@@ -101,7 +85,7 @@ function WebSocketWithReconnection(config) {
    * Handles web socket open event.
    */
   function onOpen() {
-    ws.addEventListener("close", onClose);
+    totalNumRetries = 1;
     if (reconnecting === true) {
       registerMessageHandler();
       if (config.onreconnected) {
@@ -113,7 +97,6 @@ function WebSocketWithReconnection(config) {
         config.onconnected();
       }
     }
-    totalNumRetries = 1;
   }
 
   /**
@@ -125,16 +108,25 @@ function WebSocketWithReconnection(config) {
     removeAllListeners();
     Logger.log(
       "Close Web Socket code: " + event.code + " reason: " + event.reason);
-    if (event.code > 4000) {
+
+    var scheduleReconnect = true;
+
+    if (event.code === 1000) {
+      scheduleReconnect = false;
+    } else if (event.code > 4000) {
+      scheduleReconnect = false;
       if (config.onerror) {
         config.onerror(event.reason);
       }
-      return;
     }
 
-    if (reconnecting === false) {
+    if (config.ondisconnect) {
+      config.ondisconnect(event.code, scheduleReconnect);
+    }
+
+    if (reconnecting === false && scheduleReconnect) {
       reconnecting = true;
-      reconnect(500 * totalNumRetries)
+      reconnect(RECONNECT_RETRY_INTERVAL_STEP * totalNumRetries)
     }
   }
 
@@ -148,7 +140,7 @@ function WebSocketWithReconnection(config) {
     if (config.onerror) {
       config.onerror("Web socket establishing error");
     }
-    reconnect(500 * totalNumRetries);
+    reconnect(RECONNECT_RETRY_INTERVAL_STEP * totalNumRetries)
   }
 
   /**
@@ -159,6 +151,11 @@ function WebSocketWithReconnection(config) {
    * @returns {WebSocket | SockJS} new web socket instance.
    */
   function resetWebSocket(config) {
+
+    if (ws) {
+      removeAllListeners();
+    }
+
     var newWS;
     if (config.useSockJS) {
       newWS = new SockJS(config.uri);
@@ -167,6 +164,7 @@ function WebSocketWithReconnection(config) {
     }
 
     newWS.addEventListener("open", onOpen);
+    newWS.addEventListener("close", onClose);
     newWS.addEventListener("error", onError);
     return newWS;
   }
@@ -181,25 +179,26 @@ function WebSocketWithReconnection(config) {
   }
 
   /**
-   *  Reconnects web socket with timeout.
+   *  Schedules ws reconnection after reconnectInterval if it have not exceeded
+   *  MAX_RETRY_TIME_MS.
    *
    * @param reconnectInterval reconnection timeout.
    */
   function reconnect(reconnectInterval) {
     if (reconnectInterval > MAX_RETRY_TIME_MS) {
-      if (config.onerror) {
-        config.onerror("Server is not responding")
+      if (config.onstopreconnectattempts) {
+        config.onstopreconnectattempts()
       }
-      return;
-    }
-    if (config.onreconnecting) {
-      config.onreconnecting();
-    }
-    setTimeout(function () {
+    } else {
       totalNumRetries++;
-      ws = resetWebSocket(config);
+      setTimeout(function () {
+        if (config.onreconnecting) {
+          config.onreconnecting();
+        }
+        ws = resetWebSocket(config);
 
-    }, reconnectInterval)
+      }, reconnectInterval)
+    }
   }
 
   // init new web-socket instance.
@@ -209,7 +208,7 @@ function WebSocketWithReconnection(config) {
    * Closes web-socket connection.
    */
   this.close = function (code, reason) {
-    if (ws.readyState < CLOSING) {
+    if (ws.readyState < WS_STATE_CLOSING) {
       ws.close(code, reason);
     }
   };

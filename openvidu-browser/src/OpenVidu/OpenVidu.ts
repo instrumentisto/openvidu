@@ -617,7 +617,8 @@ export class OpenVidu {
         onreconnectinit: this.reconnectInitCallback.bind(this),
         onreconnecting: this.reconnectingCallback.bind(this),
         onreconnected: this.reconnectedCallback.bind(this),
-        onerror: this.errorCallback.bind(this)
+        onerror: this.errorCallback.bind(this),
+        onstopreconnectattempts: this.stopReconnectAttemptsCallback.bind(this)
       },
       rpc: {
         requestTimeout: process.env.OPENVIDU_BROWSER_PING_TIMEOUT || 10000,
@@ -690,36 +691,33 @@ export class OpenVidu {
 
   /* Private methods */
 
-  private disconnectCallback(): void {
-    console.warn('Websocket connection lost');
-    if (this.isRoomAvailable()) {
-      this.session.onLostConnection('Websocket connection lost');
-    } else {
-      alert('Connection error. Please reload page.');
+  private stopReconnectAttemptsCallback(): void {
+    console.warn('stopReconnectAttemptsCallback');
+    this.session.onLostConnection("Stop reconnect attempts");
+  }
+
+  private disconnectCallback(code, willReconnect): void {
+    if (!willReconnect && code !== 1000) {
+      this.session.onLostConnection("Connection closed by remote server with code: " + code);
     }
+
+    console.warn('disconnectCallback');
   }
 
   private reconnectingCallback(): void {
-    console.warn('Websocket connection lost (reconnecting)');
-    if (!this.isRoomAvailable()) {
-      alert('Connection error. Please reload page.');
-    }
+    console.warn('reconnectingCallback');
   }
 
   private errorCallback(error): void {
-
-    console.warn("errorCallback");
-
+    console.warn("errorCallback " + error);
   }
 
   private reconnectInitCallback(): void {
-
     console.warn("reconnectInitCallback");
-
   }
 
   private reconnectedCallback(): void {
-    console.warn('Websocket reconnected');
+    console.warn("reconnectedCallback");
     if (this.isRoomAvailable()) {
       this.sendRequest("connect", {sessionId: this.session.connection.rpcSessionId}, (error, response)=> {
         if(error != null){
@@ -731,8 +729,6 @@ export class OpenVidu {
         this.jsonRpcClient.resetPing();
         this.session.onRecoveredConnection();
       })
-    } else {
-      alert('Connection error. Please reload page.');
     }
   }
 

@@ -66,11 +66,13 @@ function JsonRpcClient(configuration) {
 
     var status = DISCONNECTED;
 
+    var ondisconnect = wsConfig.ondisconnect;
     var onreconnectinit = wsConfig.onreconnectinit;
     var onreconnecting = wsConfig.onreconnecting;
     var onreconnected = wsConfig.onreconnected;
     var onconnected = wsConfig.onconnected;
     var onerror = wsConfig.onerror;
+    var onstopreconnectattempts = wsConfig.onstopreconnectattempts;
 
     configuration.rpc.pull = function (params, request) {
         request.reply(null, "push");
@@ -92,9 +94,28 @@ function JsonRpcClient(configuration) {
         }
     };
 
+    wsConfig.ondisconnect = function(code){
+
+        clearInterval(pingInterval);
+        pingPongStarted = false;
+        enabledPings = false;
+        pingNextNum = -1;
+        rpc.cancel();
+
+        if (ondisconnect) {
+            ondisconnect(code);
+        }
+    };
+
     wsConfig.onreconnectinit = function(){
         if (onreconnectinit) {
             onreconnectinit();
+        }
+    };
+
+    wsConfig.onstopreconnectattempts = function(){
+        if (onstopreconnectattempts) {
+            onstopreconnectattempts();
         }
     };
 
