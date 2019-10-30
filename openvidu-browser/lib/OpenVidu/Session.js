@@ -29,7 +29,7 @@ var StreamPropertyChangedEvent_1 = require("../OpenViduInternal/Events/StreamPro
 var OpenViduError_1 = require("../OpenViduInternal/Enums/OpenViduError");
 var VideoInsertMode_1 = require("../OpenViduInternal/Enums/VideoInsertMode");
 var MediaFlowQualityChangeEvent_1 = require("../OpenViduInternal/Events/MediaFlowQualityChangeEvent");
-var RpcRequestError_1 = require("../OpenViduInternal/Events/RpcRequestError");
+var RpcRequestErrorEvent_1 = require("../OpenViduInternal/Events/RpcRequestErrorEvent");
 var EventEmitter = require("wolfy87-eventemitter");
 var platform = require("platform");
 /**
@@ -728,7 +728,7 @@ var Session = /** @class */ (function () {
         this.ee.emitEvent("FlowQualityChange", [new MediaFlowQualityChangeEvent_1.MediaFlowQualityChangeEvent(true, this, "FlowQualityChange", this.connection.stream, msg.valueOf())]);
     };
     Session.prototype.onRpcRequestError = function (error) {
-        this.ee.emitEvent("rpcRequestError", [new RpcRequestError_1.RpcRequestError(true, this, "rpcRequestError", error)]);
+        this.ee.emitEvent("rpcRequestError", [new RpcRequestErrorEvent_1.RpcRequestErrorEvent(true, this, "rpcRequestError", error)]);
     };
     /**
      * @hidden

@@ -4,7 +4,7 @@ import {Session} from "../..";
 /**
  * Defines rpc request error event.
  */
-export class RpcRequestError extends Event {
+export class RpcRequestErrorEvent extends Event {
 
   error: Object;
 

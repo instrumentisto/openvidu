@@ -598,31 +598,31 @@ var OpenVidu = /** @class */ (function () {
         return this.recorder;
     };
     /* Private methods */
-    OpenVidu.prototype.emitTransportStateChanged = function (state, error) {
-        this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent_1.RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state, error)]);
+    OpenVidu.prototype.emitTransportStateChanged = function (state, error, code) {
+        this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent_1.RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state, error, code)]);
     };
     OpenVidu.prototype.stopReconnectAttemptsCallback = function () {
         this.session.onLostConnection("Stop reconnect attempts");
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.STOPED_RECONNECTION_ATTEMPTS, undefined);
+        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.STOPPED_RECONNECTION_ATTEMPTS);
     };
-    OpenVidu.prototype.disconnectCallback = function (code, willReconnect) {
-        if (!willReconnect && code !== 1000) {
-            this.session.onLostConnection("Connection closed by remote server with code: " + code);
-        }
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.DISCONNECTED, undefined);
+    OpenVidu.prototype.disconnectCallback = function (code) {
+        // if (!willReconnect && code !== 1000) {
+        //   this.session.onLostConnection("Connection closed by remote server with code: " + code);
+        // }
+        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.DISCONNECTED, undefined, code);
     };
     OpenVidu.prototype.reconnectingCallback = function () {
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECTING, undefined);
+        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECTING);
     };
     OpenVidu.prototype.errorCallback = function (error) {
         this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.ERROR, error);
     };
     OpenVidu.prototype.reconnectInitCallback = function () {
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECT_INIT, undefined);
+        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECT_INIT);
     };
     OpenVidu.prototype.reconnectedCallback = function () {
         var _this = this;
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECTED, undefined);
+        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECTED);
         if (this.isRoomAvailable()) {
             this.sendRequest("connect", { sessionId: this.session.connection.rpcSessionId }, function (error, response) {
                 if (error != null) {

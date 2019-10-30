@@ -4,11 +4,13 @@ var MAX_RETRY_TIME_MS = 10000;
 var RECONNECT_RETRY_INTERVAL_STEP = 1500;
 var WS_STATE_CLOSING = 2;
 function WebSocketWithReconnection(config) {
+    var closing = false;
     var totalNumRetries = 1;
     var registerMessageHandler;
     var reconnecting = false;
     var ws;
     function onOpen() {
+        closing = false;
         totalNumRetries = 1;
         if (reconnecting === true) {
             registerMessageHandler();
@@ -24,22 +26,13 @@ function WebSocketWithReconnection(config) {
         }
     }
     function onClose(event) {
-        removeAllListeners();
         Logger.log("Close Web Socket code: " + event.code + " reason: " + event.reason);
-        var scheduleReconnect = true;
-        if (event.code === 1000) {
-            scheduleReconnect = false;
-        }
-        else if (event.code > 4000) {
-            scheduleReconnect = false;
-            if (config.onerror) {
-                config.onerror(event.reason);
-            }
-        }
+        closing = false;
+        removeAllListeners();
         if (config.ondisconnect) {
-            config.ondisconnect(event.code, scheduleReconnect);
+            config.ondisconnect(event.code);
         }
-        if (reconnecting === false && scheduleReconnect) {
+        if (closing === false && event.code < 4000) {
             reconnecting = true;
             reconnect(RECONNECT_RETRY_INTERVAL_STEP * totalNumRetries);
         }
@@ -90,6 +83,7 @@ function WebSocketWithReconnection(config) {
     }
     ws = resetWebSocket(config);
     this.close = function (code, reason) {
+        closing = true;
         if (ws.readyState < WS_STATE_CLOSING) {
             ws.close(code, reason);
         }

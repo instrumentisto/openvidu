@@ -693,24 +693,24 @@ export class OpenVidu {
 
 
   /* Private methods */
-  private emitTransportStateChanged(state: RpcTransportState, error?:Object): void {
-      this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged",state, error )]);
+  private emitTransportStateChanged(state: RpcTransportState, error?:Object, code?:Object): void {
+    this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state, error, code)]);
   }
 
   private stopReconnectAttemptsCallback(): void {
     this.session.onLostConnection("Stop reconnect attempts");
-    this.emitTransportStateChanged(RpcTransportState.STOPED_RECONNECTION_ATTEMPTS, undefined);
+    this.emitTransportStateChanged(RpcTransportState.STOPPED_RECONNECTION_ATTEMPTS);
   }
 
-  private disconnectCallback(code, willReconnect): void {
-    if (!willReconnect && code !== 1000) {
-      this.session.onLostConnection("Connection closed by remote server with code: " + code);
-    }
-    this.emitTransportStateChanged(RpcTransportState.DISCONNECTED, undefined);
+  private disconnectCallback(code): void {
+    // if (!willReconnect && code !== 1000) {
+    //   this.session.onLostConnection("Connection closed by remote server with code: " + code);
+    // }
+    this.emitTransportStateChanged(RpcTransportState.DISCONNECTED, undefined, code);
   }
 
   private reconnectingCallback(): void {
-    this.emitTransportStateChanged(RpcTransportState.RECONNECTING, undefined);
+    this.emitTransportStateChanged(RpcTransportState.RECONNECTING);
   }
 
   private errorCallback(error): void {
@@ -718,11 +718,11 @@ export class OpenVidu {
   }
 
   private reconnectInitCallback(): void {
-    this.emitTransportStateChanged(RpcTransportState.RECONNECT_INIT, undefined);
+    this.emitTransportStateChanged(RpcTransportState.RECONNECT_INIT);
   }
 
   private reconnectedCallback(): void {
-    this.emitTransportStateChanged(RpcTransportState.RECONNECTED, undefined);
+    this.emitTransportStateChanged(RpcTransportState.RECONNECTED);
     if (this.isRoomAvailable()) {
       this.sendRequest("connect", {sessionId: this.session.connection.rpcSessionId}, (error, response)=> {
         if(error != null){

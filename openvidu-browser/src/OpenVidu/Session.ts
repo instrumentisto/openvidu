@@ -40,7 +40,7 @@ import { StreamPropertyChangedEvent } from '../OpenViduInternal/Events/StreamPro
 import { OpenViduError, OpenViduErrorName } from '../OpenViduInternal/Enums/OpenViduError';
 import { VideoInsertMode } from '../OpenViduInternal/Enums/VideoInsertMode';
 import {MediaFlowQualityChangeEvent} from "../OpenViduInternal/Events/MediaFlowQualityChangeEvent";
-import {RpcRequestError} from "../OpenViduInternal/Events/RpcRequestError";
+import {RpcRequestErrorEvent} from "../OpenViduInternal/Events/RpcRequestErrorEvent";
 
 import EventEmitter = require('wolfy87-eventemitter');
 import platform = require('platform');
@@ -855,7 +855,7 @@ export class Session implements EventDispatcher {
   }
 
   onRpcRequestError(error): void {
-    this.ee.emitEvent("rpcRequestError", [new RpcRequestError(true, this, "rpcRequestError", error)])
+    this.ee.emitEvent("rpcRequestError", [new RpcRequestErrorEvent(true, this, "rpcRequestError", error)])
   }
 
     /**
