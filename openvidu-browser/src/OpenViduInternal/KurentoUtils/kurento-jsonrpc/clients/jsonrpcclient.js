@@ -81,7 +81,7 @@ function JsonRpcClient(configuration) {
         }
     };
 
-    wsConfig.ondisconnect = function(code){
+    wsConfig.ondisconnect = function(code) {
 
         clearInterval(pingInterval);
         pingPongStarted = false;
@@ -97,7 +97,6 @@ function JsonRpcClient(configuration) {
     wsConfig.onreconnected = function () {
         enabledPings = true;
         updateNotReconnectIfLessThan();
-        usePing();
 
         if (onreconnected) {
             onreconnected();

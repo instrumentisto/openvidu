@@ -703,9 +703,9 @@ export class OpenVidu {
   }
 
   private disconnectCallback(code): void {
-    // if (!willReconnect && code !== 1000) {
-    //   this.session.onLostConnection("Connection closed by remote server with code: " + code);
-    // }
+    if (code > 4100) {
+      this.session.onLostConnection("Connection closed by remote server with code: " + code);
+    }
     this.emitTransportStateChanged(RpcTransportState.DISCONNECTED, undefined, code);
   }
 
