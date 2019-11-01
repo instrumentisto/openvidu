@@ -81,7 +81,7 @@ function JsonRpcClient(configuration) {
         }
     };
 
-    wsConfig.ondisconnect = function(code) {
+    wsConfig.ondisconnect = function(code, reason) {
 
         clearInterval(pingInterval);
         pingPongStarted = false;
@@ -90,7 +90,7 @@ function JsonRpcClient(configuration) {
         rpc.cancel();
 
         if (ondisconnect) {
-            ondisconnect(code);
+            ondisconnect(code, reason);
         }
     };
 

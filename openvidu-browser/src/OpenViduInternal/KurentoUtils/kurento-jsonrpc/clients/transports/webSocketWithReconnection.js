@@ -115,7 +115,7 @@ function WebSocketWithReconnection(config) {
     removeAllListeners();
 
     if (config.ondisconnect) {
-      config.ondisconnect(event.code);
+      config.ondisconnect(event.code, event.reason);
     }
 
     // 1000 is normal disconnect

@@ -30,9 +30,9 @@ function WebSocketWithReconnection(config) {
         closing = false;
         removeAllListeners();
         if (config.ondisconnect) {
-            config.ondisconnect(event.code);
+            config.ondisconnect(event.code, event.reason);
         }
-        if (closing === false && event.code < 4000) {
+        if ((closing === false && event.code > 1000 && event.code < 4000) || reconnecting) {
             reconnecting = true;
             reconnect(RECONNECT_RETRY_INTERVAL_STEP * totalNumRetries);
         }
@@ -106,6 +106,7 @@ function WebSocketWithReconnection(config) {
         if (config.onreconnectinit) {
             config.onreconnectinit();
         }
+        reconnecting = true;
         ws.close(1000, "Close Web socket for reconnection");
     };
     this.send = function (message) {

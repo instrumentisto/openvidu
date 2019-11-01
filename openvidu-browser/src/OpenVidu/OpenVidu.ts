@@ -25,14 +25,15 @@ import { OpenViduAdvancedConfiguration } from '../OpenViduInternal/Interfaces/Pu
 import { PublisherProperties } from '../OpenViduInternal/Interfaces/Public/PublisherProperties';
 import { OpenViduError, OpenViduErrorName } from '../OpenViduInternal/Enums/OpenViduError';
 import { VideoInsertMode } from '../OpenViduInternal/Enums/VideoInsertMode';
+import {RpcTransportStateChangedEvent} from "../OpenViduInternal/Events/RpcTransportStateChangedEvent";
+import {RpcTransportState} from "../OpenViduInternal/Enums/RpcTransportState";
 
 import * as screenSharingAuto from '../OpenViduInternal/ScreenSharing/Screen-Capturing-Auto';
 import * as screenSharing from '../OpenViduInternal/ScreenSharing/Screen-Capturing';
 
 import RpcBuilder = require('../OpenViduInternal/KurentoUtils/kurento-jsonrpc');
 import platform = require('platform');
-import {RpcTransportStateChangedEvent} from "../OpenViduInternal/Events/RpcTransportStateChangedEvent";
-import {RpcTransportState} from "../OpenViduInternal/Enums/RpcTransportState";
+
 platform['isIonicIos'] = (platform.product === 'iPhone' || platform.product === 'iPad') && platform.ua!!.indexOf('Safari') === -1;
 
 /**
@@ -693,36 +694,36 @@ export class OpenVidu {
 
 
   /* Private methods */
-  private emitTransportStateChanged(state: RpcTransportState, error?:Object, code?:Object): void {
-    this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state, error, code)]);
+  private emitTransportStateChanged(state: RpcTransportState): void {
+    this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state)]);
   }
 
   private stopReconnectAttemptsCallback(): void {
     this.session.onLostConnection("Stop reconnect attempts");
-    this.emitTransportStateChanged(RpcTransportState.STOPPED_RECONNECTION_ATTEMPTS);
+    this.emitTransportStateChanged(new RpcTransportState.StoppedReconnectionAttempts());
   }
 
-  private disconnectCallback(code): void {
+  private disconnectCallback(code, reason): void {
     if (code > 4100) {
       this.session.onLostConnection("Connection closed by remote server with code: " + code);
     }
-    this.emitTransportStateChanged(RpcTransportState.DISCONNECTED, undefined, code);
+    this.emitTransportStateChanged(new RpcTransportState.Disconnected(code, reason));
   }
 
   private reconnectingCallback(): void {
-    this.emitTransportStateChanged(RpcTransportState.RECONNECTING);
+    this.emitTransportStateChanged(new RpcTransportState.Reconnecting());
   }
 
   private errorCallback(error): void {
-    this.emitTransportStateChanged(RpcTransportState.ERROR, error);
+    this.emitTransportStateChanged(new RpcTransportState.Error(error));
   }
 
   private reconnectInitCallback(): void {
-    this.emitTransportStateChanged(RpcTransportState.RECONNECT_INIT);
+    this.emitTransportStateChanged(new RpcTransportState.ReconnectInit());
   }
 
   private reconnectedCallback(): void {
-    this.emitTransportStateChanged(RpcTransportState.RECONNECTED);
+    this.emitTransportStateChanged(new RpcTransportState.Reconnected());
     if (this.isRoomAvailable()) {
       this.sendRequest("connect", {sessionId: this.session.connection.rpcSessionId}, (error, response)=> {
         if(error != null){

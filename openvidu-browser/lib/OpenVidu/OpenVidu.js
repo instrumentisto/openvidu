@@ -22,12 +22,12 @@ var Session_1 = require("./Session");
 var StreamPropertyChangedEvent_1 = require("../OpenViduInternal/Events/StreamPropertyChangedEvent");
 var OpenViduError_1 = require("../OpenViduInternal/Enums/OpenViduError");
 var VideoInsertMode_1 = require("../OpenViduInternal/Enums/VideoInsertMode");
+var RpcTransportStateChangedEvent_1 = require("../OpenViduInternal/Events/RpcTransportStateChangedEvent");
+var RpcTransportState_1 = require("../OpenViduInternal/Enums/RpcTransportState");
 var screenSharingAuto = require("../OpenViduInternal/ScreenSharing/Screen-Capturing-Auto");
 var screenSharing = require("../OpenViduInternal/ScreenSharing/Screen-Capturing");
 var RpcBuilder = require("../OpenViduInternal/KurentoUtils/kurento-jsonrpc");
 var platform = require("platform");
-var RpcTransportStateChangedEvent_1 = require("../OpenViduInternal/Events/RpcTransportStateChangedEvent");
-var RpcTransportState_1 = require("../OpenViduInternal/Enums/RpcTransportState");
 platform['isIonicIos'] = (platform.product === 'iPhone' || platform.product === 'iPad') && platform.ua.indexOf('Safari') === -1;
 /**
  * Entrypoint of OpenVidu Browser library.
@@ -598,31 +598,31 @@ var OpenVidu = /** @class */ (function () {
         return this.recorder;
     };
     /* Private methods */
-    OpenVidu.prototype.emitTransportStateChanged = function (state, error, code) {
-        this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent_1.RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state, error, code)]);
+    OpenVidu.prototype.emitTransportStateChanged = function (state) {
+        this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent_1.RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state)]);
     };
     OpenVidu.prototype.stopReconnectAttemptsCallback = function () {
         this.session.onLostConnection("Stop reconnect attempts");
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.STOPPED_RECONNECTION_ATTEMPTS);
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.StoppedReconnectionAttempts());
     };
-    OpenVidu.prototype.disconnectCallback = function (code) {
-        // if (!willReconnect && code !== 1000) {
-        //   this.session.onLostConnection("Connection closed by remote server with code: " + code);
-        // }
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.DISCONNECTED, undefined, code);
+    OpenVidu.prototype.disconnectCallback = function (code, reason) {
+        if (code > 4100) {
+            this.session.onLostConnection("Connection closed by remote server with code: " + code);
+        }
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.Disconnected(code, reason));
     };
     OpenVidu.prototype.reconnectingCallback = function () {
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECTING);
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.Reconnecting());
     };
     OpenVidu.prototype.errorCallback = function (error) {
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.ERROR, error);
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.Error(error));
     };
     OpenVidu.prototype.reconnectInitCallback = function () {
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECT_INIT);
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.ReconnectInit());
     };
     OpenVidu.prototype.reconnectedCallback = function () {
         var _this = this;
-        this.emitTransportStateChanged(RpcTransportState_1.RpcTransportState.RECONNECTED);
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.Reconnected());
         if (this.isRoomAvailable()) {
             this.sendRequest("connect", { sessionId: this.session.connection.rpcSessionId }, function (error, response) {
                 if (error != null) {

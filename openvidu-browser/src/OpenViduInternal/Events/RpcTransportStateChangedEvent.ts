@@ -7,18 +7,14 @@ import {Session} from "../..";
  */
 export class RpcTransportStateChangedEvent extends Event {
 
-  state: String;
-  error: undefined | Object;
-  code: undefined | Object;
+  state: RpcTransportState;
 
   /**
    * @hidden
    */
-  constructor(cancelable: boolean, target: Session, type: string, state: RpcTransportState, error?:Object, code?:Object) {
+  constructor(cancelable: boolean, target: Session, type: string, state: RpcTransportState) {
     super(cancelable, target, type);
-    this.state = RpcTransportState[state];
-    this.error = error;
-    this.code = code;
+    this.state = state;
   }
 
   /**
