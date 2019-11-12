@@ -18,6 +18,8 @@ import { SessionDisconnectedEvent } from '../OpenViduInternal/Events/SessionDisc
 import { SignalEvent } from '../OpenViduInternal/Events/SignalEvent';
 import { StreamEvent } from '../OpenViduInternal/Events/StreamEvent';
 import { MediaFlowQualityChangeEvent } from "../OpenViduInternal/Events/MediaFlowQualityChangeEvent";
+import { RpcRequestErrorEvent } from "../OpenViduInternal/Events/RpcRequestErrorEvent";
+import { RpcTransportStateChangedEvent } from "../OpenViduInternal/Events/RpcTransportStateChangedEvent";
 /**
  * Represents a video call. It can also be seen as a videoconference room where multiple users can connect.
  * Participants who publish their videos to a session can be seen by the rest of users connected to that specific session.
@@ -211,11 +213,11 @@ export declare class Session implements EventDispatcher {
     /**
      * See [[EventDispatcher.once]]
      */
-    once(type: string, handler: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent) => void): Session;
+    once(type: string, handler: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent | RpcRequestErrorEvent | RpcTransportStateChangedEvent) => void): Session;
     /**
      * See [[EventDispatcher.off]]
      */
-    off(type: string, handler?: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent) => void): Session;
+    off(type: string, handler?: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent | RpcRequestErrorEvent | RpcTransportStateChangedEvent) => void): Session;
     /**
      * @hidden
      */

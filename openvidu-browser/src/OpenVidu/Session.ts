@@ -39,8 +39,9 @@ import { StreamEvent } from '../OpenViduInternal/Events/StreamEvent';
 import { StreamPropertyChangedEvent } from '../OpenViduInternal/Events/StreamPropertyChangedEvent';
 import { OpenViduError, OpenViduErrorName } from '../OpenViduInternal/Enums/OpenViduError';
 import { VideoInsertMode } from '../OpenViduInternal/Enums/VideoInsertMode';
-import {MediaFlowQualityChangeEvent} from "../OpenViduInternal/Events/MediaFlowQualityChangeEvent";
-import {RpcRequestErrorEvent} from "../OpenViduInternal/Events/RpcRequestErrorEvent";
+import { MediaFlowQualityChangeEvent } from "../OpenViduInternal/Events/MediaFlowQualityChangeEvent";
+import { RpcRequestErrorEvent } from "../OpenViduInternal/Events/RpcRequestErrorEvent";
+import { RpcTransportStateChangedEvent } from "../OpenViduInternal/Events/RpcTransportStateChangedEvent";
 
 import EventEmitter = require('wolfy87-eventemitter');
 import platform = require('platform');
@@ -582,7 +583,7 @@ export class Session implements EventDispatcher {
     /**
      * See [[EventDispatcher.once]]
      */
-    once(type: string, handler: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent) => void): Session {
+    once(type: string, handler: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent | RpcRequestErrorEvent | RpcTransportStateChangedEvent) => void): Session {
 
         this.ee.once(type, event => {
             if (event) {
@@ -611,7 +612,7 @@ export class Session implements EventDispatcher {
     /**
      * See [[EventDispatcher.off]]
      */
-    off(type: string, handler?: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent) => void): Session {
+    off(type: string, handler?: (event: SessionDisconnectedEvent | SignalEvent | StreamEvent | ConnectionEvent | PublisherSpeakingEvent | RecordingEvent | MediaFlowQualityChangeEvent | RpcRequestErrorEvent | RpcTransportStateChangedEvent) => void): Session {
 
         if (!handler) {
             this.ee.removeAllListeners(type);

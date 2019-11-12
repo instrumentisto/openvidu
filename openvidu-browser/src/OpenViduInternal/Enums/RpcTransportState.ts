@@ -1,5 +1,9 @@
 export class RpcTransportState {
-  protected constructor() {
+
+  public readonly name: string;
+
+  protected constructor(name: string) {
+    this.name = name;
   }
 }
 
@@ -9,7 +13,7 @@ export namespace RpcTransportState {
     public readonly reason: string;
 
     constructor(code: number, reason: string) {
-      super();
+      super("Disconnected");
       this.code = code;
       this.reason = reason
     }
@@ -19,32 +23,32 @@ export namespace RpcTransportState {
     public readonly error: string;
 
     constructor(error: string) {
-      super();
+      super("Error");
       this.error = error;
     }
   }
 
   export class ReconnectInit extends RpcTransportState {
     constructor() {
-      super();
+      super("ReconnectInit");
     }
   }
 
   export class Reconnecting extends RpcTransportState {
     constructor() {
-      super();
+      super("Reconnecting");
     }
   }
 
   export class Reconnected extends RpcTransportState {
     constructor() {
-      super();
+      super("Reconnected");
     }
   }
 
   export class StoppedReconnectionAttempts extends RpcTransportState {
     constructor() {
-      super();
+      super("StoppedReconnectionAttempts");
     }
   }
 
