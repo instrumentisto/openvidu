@@ -145,7 +145,7 @@ export declare class OpenVidu {
     /**
      * @hidden
      */
-    startWs(onConnectSucces: (error: Error) => void): void;
+    startWs(onConnectSuccess: (error: Error) => void): void;
     /**
      * @hidden
      */
@@ -166,8 +166,12 @@ export declare class OpenVidu {
      * @hidden
      */
     getRecorder(): boolean;
+    private emitTransportStateChanged;
+    private stopReconnectAttemptsCallback;
     private disconnectCallback;
     private reconnectingCallback;
+    private errorCallback;
+    private reconnectInitCallback;
     private reconnectedCallback;
     private isRoomAvailable;
 }

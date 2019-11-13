@@ -28,9 +28,10 @@ var StreamEvent_1 = require("../OpenViduInternal/Events/StreamEvent");
 var StreamPropertyChangedEvent_1 = require("../OpenViduInternal/Events/StreamPropertyChangedEvent");
 var OpenViduError_1 = require("../OpenViduInternal/Enums/OpenViduError");
 var VideoInsertMode_1 = require("../OpenViduInternal/Enums/VideoInsertMode");
+var MediaFlowQualityChangeEvent_1 = require("../OpenViduInternal/Events/MediaFlowQualityChangeEvent");
+var RpcRequestErrorEvent_1 = require("../OpenViduInternal/Events/RpcRequestErrorEvent");
 var EventEmitter = require("wolfy87-eventemitter");
 var platform = require("platform");
-var MediaFlowQualityChangeEvent_1 = require("../OpenViduInternal/Events/MediaFlowQualityChangeEvent");
 /**
  * Represents a video call. It can also be seen as a videoconference room where multiple users can connect.
  * Participants who publish their videos to a session can be seen by the rest of users connected to that specific session.
@@ -725,6 +726,9 @@ var Session = /** @class */ (function () {
      */
     Session.prototype.onQualityChanged = function (msg) {
         this.ee.emitEvent("FlowQualityChange", [new MediaFlowQualityChangeEvent_1.MediaFlowQualityChangeEvent(true, this, "FlowQualityChange", this.connection.stream, msg.valueOf())]);
+    };
+    Session.prototype.onRpcRequestError = function (error) {
+        this.ee.emitEvent("rpcRequestError", [new RpcRequestErrorEvent_1.RpcRequestErrorEvent(true, this, "rpcRequestError", error)]);
     };
     /**
      * @hidden

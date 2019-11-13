@@ -25,12 +25,15 @@ import { OpenViduAdvancedConfiguration } from '../OpenViduInternal/Interfaces/Pu
 import { PublisherProperties } from '../OpenViduInternal/Interfaces/Public/PublisherProperties';
 import { OpenViduError, OpenViduErrorName } from '../OpenViduInternal/Enums/OpenViduError';
 import { VideoInsertMode } from '../OpenViduInternal/Enums/VideoInsertMode';
+import {RpcTransportStateChangedEvent} from "../OpenViduInternal/Events/RpcTransportStateChangedEvent";
+import {RpcTransportState} from "../OpenViduInternal/Enums/RpcTransportState";
 
 import * as screenSharingAuto from '../OpenViduInternal/ScreenSharing/Screen-Capturing-Auto';
 import * as screenSharing from '../OpenViduInternal/ScreenSharing/Screen-Capturing';
 
 import RpcBuilder = require('../OpenViduInternal/KurentoUtils/kurento-jsonrpc');
 import platform = require('platform');
+
 platform['isIonicIos'] = (platform.product === 'iPhone' || platform.product === 'iPad') && platform.ua!!.indexOf('Safari') === -1;
 
 /**
@@ -206,8 +209,6 @@ export class OpenVidu {
         filter: properties.filter
       };
     } else {
-
-      // Matches 'initPublisher(targetElement)' or 'initPublisher(targetElement, completionHandler)'
 
       properties = {
         insertMode: VideoInsertMode.APPEND,
@@ -607,17 +608,21 @@ export class OpenVidu {
   /**
    * @hidden
    */
-  startWs(onConnectSucces: (error: Error) => void): void {
+  startWs(onConnectSuccess: (error: Error) => void): void {
+
     const config = {
       heartbeat: process.env.OPENVIDU_BROWSER_PING_PERIOD || 5000,
       sendCloseMessage: false,
       ws: {
         uri: this.wsUri,
         useSockJS: false,
-        onconnected: onConnectSucces,
+        onconnected: onConnectSuccess,
         ondisconnect: this.disconnectCallback.bind(this),
+        onreconnectinit: this.reconnectInitCallback.bind(this),
         onreconnecting: this.reconnectingCallback.bind(this),
-        onreconnected: this.reconnectedCallback.bind(this)
+        onreconnected: this.reconnectedCallback.bind(this),
+        onerror: this.errorCallback.bind(this),
+        onstopreconnectattempts: this.stopReconnectAttemptsCallback.bind(this)
       },
       rpc: {
         requestTimeout: process.env.OPENVIDU_BROWSER_PING_TIMEOUT || 10000,
@@ -633,7 +638,8 @@ export class OpenVidu {
         filterEventDispatched: this.session.onFilterEventDispatched.bind(this.session),
         iceCandidate: this.session.recvIceCandidate.bind(this.session),
         mediaError: this.session.onMediaError.bind(this.session),
-        qualityChanged:  this.session.onQualityChanged.bind(this.session)
+        qualityChanged:  this.session.onQualityChanged.bind(this.session),
+        rpcRequestError: this.session.onRpcRequestError.bind(this.session)
       }
     };
     this.jsonRpcClient = new RpcBuilder.clients.JsonRpcClient(config);
@@ -688,25 +694,36 @@ export class OpenVidu {
 
 
   /* Private methods */
+  private emitTransportStateChanged(state: RpcTransportState): void {
+    this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state)]);
+  }
 
-  private disconnectCallback(): void {
-    console.warn('Websocket connection lost');
-    if (this.isRoomAvailable()) {
-      this.session.onLostConnection('Websocket connection lost');
-    } else {
-      alert('Connection error. Please reload page.');
+  private stopReconnectAttemptsCallback(): void {
+    this.session.onLostConnection("Stop reconnect attempts");
+    this.emitTransportStateChanged(new RpcTransportState.StoppedReconnectionAttempts());
+  }
+
+  private disconnectCallback(code, reason): void {
+    if (code > 4100) {
+      this.session.onLostConnection("Connection closed by remote server with code: " + code);
     }
+    this.emitTransportStateChanged(new RpcTransportState.Disconnected(code, reason));
   }
 
   private reconnectingCallback(): void {
-    console.warn('Websocket connection lost (reconnecting)');
-    if (!this.isRoomAvailable()) {
-      alert('Connection error. Please reload page.');
-    }
+    this.emitTransportStateChanged(new RpcTransportState.Reconnecting());
+  }
+
+  private errorCallback(error): void {
+    this.emitTransportStateChanged(new RpcTransportState.Error(error));
+  }
+
+  private reconnectInitCallback(): void {
+    this.emitTransportStateChanged(new RpcTransportState.ReconnectInit());
   }
 
   private reconnectedCallback(): void {
-    console.warn('Websocket reconnected');
+    this.emitTransportStateChanged(new RpcTransportState.Reconnected());
     if (this.isRoomAvailable()) {
       this.sendRequest("connect", {sessionId: this.session.connection.rpcSessionId}, (error, response)=> {
         if(error != null){
@@ -718,8 +735,6 @@ export class OpenVidu {
         this.jsonRpcClient.resetPing();
         this.session.onRecoveredConnection();
       })
-    } else {
-      alert('Connection error. Please reload page.');
     }
   }
 

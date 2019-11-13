@@ -22,6 +22,8 @@ var Session_1 = require("./Session");
 var StreamPropertyChangedEvent_1 = require("../OpenViduInternal/Events/StreamPropertyChangedEvent");
 var OpenViduError_1 = require("../OpenViduInternal/Enums/OpenViduError");
 var VideoInsertMode_1 = require("../OpenViduInternal/Enums/VideoInsertMode");
+var RpcTransportStateChangedEvent_1 = require("../OpenViduInternal/Events/RpcTransportStateChangedEvent");
+var RpcTransportState_1 = require("../OpenViduInternal/Enums/RpcTransportState");
 var screenSharingAuto = require("../OpenViduInternal/ScreenSharing/Screen-Capturing-Auto");
 var screenSharing = require("../OpenViduInternal/ScreenSharing/Screen-Capturing");
 var RpcBuilder = require("../OpenViduInternal/KurentoUtils/kurento-jsonrpc");
@@ -161,7 +163,6 @@ var OpenVidu = /** @class */ (function () {
             };
         }
         else {
-            // Matches 'initPublisher(targetElement)' or 'initPublisher(targetElement, completionHandler)'
             properties = {
                 insertMode: VideoInsertMode_1.VideoInsertMode.APPEND,
                 mirror: true,
@@ -520,17 +521,20 @@ var OpenVidu = /** @class */ (function () {
     /**
      * @hidden
      */
-    OpenVidu.prototype.startWs = function (onConnectSucces) {
+    OpenVidu.prototype.startWs = function (onConnectSuccess) {
         var config = {
             heartbeat: process.env.OPENVIDU_BROWSER_PING_PERIOD || 5000,
             sendCloseMessage: false,
             ws: {
                 uri: this.wsUri,
                 useSockJS: false,
-                onconnected: onConnectSucces,
+                onconnected: onConnectSuccess,
                 ondisconnect: this.disconnectCallback.bind(this),
+                onreconnectinit: this.reconnectInitCallback.bind(this),
                 onreconnecting: this.reconnectingCallback.bind(this),
-                onreconnected: this.reconnectedCallback.bind(this)
+                onreconnected: this.reconnectedCallback.bind(this),
+                onerror: this.errorCallback.bind(this),
+                onstopreconnectattempts: this.stopReconnectAttemptsCallback.bind(this)
             },
             rpc: {
                 requestTimeout: process.env.OPENVIDU_BROWSER_PING_TIMEOUT || 10000,
@@ -546,7 +550,8 @@ var OpenVidu = /** @class */ (function () {
                 filterEventDispatched: this.session.onFilterEventDispatched.bind(this.session),
                 iceCandidate: this.session.recvIceCandidate.bind(this.session),
                 mediaError: this.session.onMediaError.bind(this.session),
-                qualityChanged: this.session.onQualityChanged.bind(this.session)
+                qualityChanged: this.session.onQualityChanged.bind(this.session),
+                rpcRequestError: this.session.onRpcRequestError.bind(this.session)
             }
         };
         this.jsonRpcClient = new RpcBuilder.clients.JsonRpcClient(config);
@@ -593,24 +598,31 @@ var OpenVidu = /** @class */ (function () {
         return this.recorder;
     };
     /* Private methods */
-    OpenVidu.prototype.disconnectCallback = function () {
-        console.warn('Websocket connection lost');
-        if (this.isRoomAvailable()) {
-            this.session.onLostConnection('Websocket connection lost');
+    OpenVidu.prototype.emitTransportStateChanged = function (state) {
+        this.session.emitEvent('rpcTransportStateChanged', [new RpcTransportStateChangedEvent_1.RpcTransportStateChangedEvent(false, this.session, "rpcTransportStateChanged", state)]);
+    };
+    OpenVidu.prototype.stopReconnectAttemptsCallback = function () {
+        this.session.onLostConnection("Stop reconnect attempts");
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.StoppedReconnectionAttempts());
+    };
+    OpenVidu.prototype.disconnectCallback = function (code, reason) {
+        if (code > 4100) {
+            this.session.onLostConnection("Connection closed by remote server with code: " + code);
         }
-        else {
-            alert('Connection error. Please reload page.');
-        }
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.Disconnected(code, reason));
     };
     OpenVidu.prototype.reconnectingCallback = function () {
-        console.warn('Websocket connection lost (reconnecting)');
-        if (!this.isRoomAvailable()) {
-            alert('Connection error. Please reload page.');
-        }
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.Reconnecting());
+    };
+    OpenVidu.prototype.errorCallback = function (error) {
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.Error(error));
+    };
+    OpenVidu.prototype.reconnectInitCallback = function () {
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.ReconnectInit());
     };
     OpenVidu.prototype.reconnectedCallback = function () {
         var _this = this;
-        console.warn('Websocket reconnected');
+        this.emitTransportStateChanged(new RpcTransportState_1.RpcTransportState.Reconnected());
         if (this.isRoomAvailable()) {
             this.sendRequest("connect", { sessionId: this.session.connection.rpcSessionId }, function (error, response) {
                 if (error != null) {
@@ -622,9 +634,6 @@ var OpenVidu = /** @class */ (function () {
                 _this.jsonRpcClient.resetPing();
                 _this.session.onRecoveredConnection();
             });
-        }
-        else {
-            alert('Connection error. Please reload page.');
         }
     };
     OpenVidu.prototype.isRoomAvailable = function () {
