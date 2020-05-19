@@ -57,18 +57,20 @@ var Connection = /** @class */ (function () {
      * @hidden
      */
     Connection.prototype.sendIceCandidate = function (candidate) {
-        console.debug((!!this.stream.outboundStreamOpts ? 'Local' : 'Remote'), 'candidate for', this.connectionId, JSON.stringify(candidate));
-        this.session.openvidu.sendRequest('onIceCandidate', {
-            endpointName: this.connectionId,
-            candidate: candidate.candidate,
-            sdpMid: candidate.sdpMid,
-            sdpMLineIndex: candidate.sdpMLineIndex
-        }, function (error, response) {
-            if (error) {
-                console.error('Error sending ICE candidate: '
-                    + JSON.stringify(error));
-            }
-        });
+        if (!this.disposed) {
+            console.debug((!!this.stream.outboundStreamOpts ? 'Local' : 'Remote'), 'candidate for', this.connectionId, JSON.stringify(candidate));
+            this.session.openvidu.sendRequest('onIceCandidate', {
+                endpointName: this.connectionId,
+                candidate: candidate.candidate,
+                sdpMid: candidate.sdpMid,
+                sdpMLineIndex: candidate.sdpMLineIndex
+            }, function (error, response) {
+                if (error) {
+                    console.error('Error sending ICE candidate: '
+                        + JSON.stringify(error));
+                }
+            });
+        }
     };
     /**
      * @hidden

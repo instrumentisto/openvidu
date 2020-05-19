@@ -784,7 +784,7 @@ var Session = /** @class */ (function () {
      */
     Session.prototype.onLostConnection = function (reason) {
         console.warn('Lost connection in Session # waiting for reconnect', this.sessionId);
-        if (!!this.sessionId && !this.connection.disposed) {
+        if (!!this.sessionId && this.connection && !this.connection.disposed) {
             this.leave(true, reason);
         }
     };

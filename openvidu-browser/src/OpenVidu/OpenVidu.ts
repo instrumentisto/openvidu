@@ -739,7 +739,7 @@ export class OpenVidu {
   }
 
   private isRoomAvailable(): boolean {
-    if (this.session !== undefined && this.session instanceof Session) {
+    if (!!this.session && !!this.session.connection && !!this.session.connection.rpcSessionId) {
       return true;
     } else {
       console.warn('Session instance not found');

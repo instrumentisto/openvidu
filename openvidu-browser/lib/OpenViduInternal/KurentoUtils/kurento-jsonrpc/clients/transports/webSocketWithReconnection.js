@@ -36,6 +36,9 @@ function WebSocketWithReconnection(config) {
             reconnecting = true;
             reconnect(RECONNECT_RETRY_INTERVAL_STEP * totalNumRetries);
         }
+        if (event.code > 4100) {
+            reconnecting = false;
+        }
     }
     function onError(event) {
         removeAllListeners();

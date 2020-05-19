@@ -637,7 +637,7 @@ var OpenVidu = /** @class */ (function () {
         }
     };
     OpenVidu.prototype.isRoomAvailable = function () {
-        if (this.session !== undefined && this.session instanceof Session_1.Session) {
+        if (!!this.session && !!this.session.connection && !!this.session.connection.rpcSessionId) {
             return true;
         }
         else {

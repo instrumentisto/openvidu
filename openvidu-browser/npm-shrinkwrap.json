@@ -1,6 +1,6 @@
 {
     "name": "instrumentisto-browser",
-    "version": "2.7.0-r3",
+    "version": "2.7.0-r8",
     "lockfileVersion": 1,
     "requires": true,
     "dependencies": {
@@ -4256,14 +4256,6 @@
                 "inherits": "^2.0.1"
             }
         },
-        "rtcpeerconnection-shim": {
-            "version": "1.2.15",
-            "resolved": "https://registry.npmjs.org/rtcpeerconnection-shim/-/rtcpeerconnection-shim-1.2.15.tgz",
-            "integrity": "sha512-C6DxhXt7bssQ1nHb154lqeL0SXz5Dx4RczXZu2Aa/L1NJFnEVDxFwCBo3fqtuljhHIGceg5JKBV4XJ0gW5JKyw==",
-            "requires": {
-                "sdp": "^2.6.0"
-            }
-        },
         "safe-buffer": {
             "version": "5.1.2",
             "resolved": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz",
@@ -4296,11 +4288,6 @@
             "resolved": "https://registry.npmjs.org/sax/-/sax-1.2.4.tgz",
             "integrity": "sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==",
             "dev": true
-        },
-        "sdp": {
-            "version": "2.9.0",
-            "resolved": "https://registry.npmjs.org/sdp/-/sdp-2.9.0.tgz",
-            "integrity": "sha512-XAVZQO4qsfzVTHorF49zCpkdxiGmPNjA8ps8RcJGtGP3QJ/A8I9/SVg/QnkAFDMXIyGbHZBBFwYBw6WdnhT96w=="
         },
         "semver": {
             "version": "5.6.0",
@@ -5175,15 +5162,6 @@
             "resolved": "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.0.tgz",
             "integrity": "sha512-iq+S7vZJE60yejDYM0ek6zg308+UZsdtPExWP9VZoCFCz1zkJoXFnAX7aZfd/ZwrkidzdUZL0C/ryW+JwAiIGw==",
             "dev": true
-        },
-        "webrtc-adapter": {
-            "version": "7.1.1",
-            "resolved": "https://registry.npmjs.org/webrtc-adapter/-/webrtc-adapter-7.1.1.tgz",
-            "integrity": "sha512-ybi+GBPKd9s4HfnWVaWraKZkYqJeptyNzEEmtTAl1QRbT8kqMzsuwPH5UmSJGERb5fNfXg+EvQIM0v0Pdp3WRg==",
-            "requires": {
-                "rtcpeerconnection-shim": "^1.2.15",
-                "sdp": "^2.9.0"
-            }
         },
         "websocket-driver": {
             "version": "0.7.0",
