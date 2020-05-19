@@ -1,0 +1,35 @@
+language: node_js
+node_js:
+  - "node"
+
+cache:
+  directories:
+    - openvidu-browser/node_modules/
+
+stages:
+  - deps
+  - build
+  - test
+  - docs
+
+jobs:
+  include:
+    - stage: deps
+      script:
+       - cd openvidu-browser
+       - yarn install
+    - stage: build
+      script:
+        - cd openvidu-browser
+        - yarn build
+    - script:
+      - cd openvidu-browser
+      - yarn browserify
+    - stage: test
+      script:
+        - cd openvidu-browser
+        - yarn test
+    - stage: docs
+      script:
+        - cd openvidu-browser
+        - yarn docs
